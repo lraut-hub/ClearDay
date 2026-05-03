@@ -1,20 +1,34 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
 
-# Run and deploy your AI Studio app
+# ClearDay AI Productivity Planner
 
-This contains everything you need to run your app locally.
+ClearDay is a modern, mindful productivity application designed to help you transform overwhelming long-term goals into actionable, manageable daily tasks. Using Gemini AI, it provides gentle guidance and structured planning to help you overcome procrastination.
 
-View your app in AI Studio: https://ai.studio/apps/84e42cd3-70b1-4777-a2dd-5cd146d9f4b1
+## ✨ Key Features
+- **AI Goal Breakdown**: Turn vague ambitions into structured, sequential plans.
+- **PWA Ready**: Install as a native-like app on iOS and Android.
+- **Vercel Serverless Architecture**: Secure AI interactions and high-performance delivery.
+- **Mobile-First Design**: A premium experience optimized for touch and on-the-go planning.
+- **Offline Mode**: Access your schedule and goals even without an internet connection.
 
-## Run Locally
+## 🚀 Deployment (Vercel)
 
-**Prerequisites:**  Node.js
+1. **Push to GitHub**: Connect your repository to Vercel.
+2. **Environment Variables**: Add `GEMINI_API_KEY` in your Vercel Project Settings.
+3. **Automatic Deployment**: Vercel will build the frontend and set up the Serverless Functions automatically.
 
+## 💻 Local Development
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+2. **Set Environment Variable**:
+   Set `GEMINI_API_KEY` in your terminal environment or a `.env` file (not `.env.local`).
+3. **Run Dev Server**:
+   ```bash
+   npm run dev
+   ```
+
+---
+*Built with React, Vite, Material UI, and Google Gemini.*
+
