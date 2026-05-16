@@ -10,17 +10,19 @@ interface RescheduleTaskModalProps {
   task: Task | null;
 }
 
-const style = {
-  position: 'absolute' as 'absolute',
+const modalStyle = {
+  position: 'absolute' as const,
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '90%',
-  maxWidth: 400,
+  width: '92%',
+  maxWidth: 420,
   bgcolor: 'background.paper',
-  borderRadius: 3,
-  boxShadow: 24,
+  borderRadius: 'var(--cd-radius-lg)',
+  border: '1px solid var(--cd-outline)',
+  boxShadow: '0 16px 48px rgba(0, 0, 0, 0.4)',
   p: 3,
+  animation: 'scaleIn 300ms cubic-bezier(0.05, 0.7, 0.1, 1) both',
 };
 
 const RescheduleTaskModal: React.FC<RescheduleTaskModalProps> = ({ open, onClose, onReschedule, task }) => {
@@ -46,13 +48,30 @@ const RescheduleTaskModal: React.FC<RescheduleTaskModalProps> = ({ open, onClose
 
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="reschedule-task-modal-title">
-      <Box sx={style}>
-        <Typography id="reschedule-task-modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
-          Reschedule Task
+      <Box sx={modalStyle}>
+        <Typography 
+          id="reschedule-task-modal-title" 
+          variant="h5" 
+          component="h2" 
+          sx={{ mb: 2, fontFamily: "'DM Sans', sans-serif" }}
+        >
+          Reschedule
         </Typography>
-        <Typography variant="body1" sx={{ mb: 2, p: 1.5, bgcolor: 'secondary.main', borderRadius: 1 }}>
-          {task.title}
-        </Typography>
+        <Box 
+          sx={{ 
+            mb: 2.5, p: 1.5, 
+            bgcolor: 'var(--cd-bg-surface-high)', 
+            borderRadius: 'var(--cd-radius-md)',
+            border: '1px solid var(--cd-outline-variant)',
+          }}
+        >
+          <Typography variant="body1" sx={{ fontWeight: 500 }}>{task.title}</Typography>
+          {task.dueTime && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+              Currently: {task.dueDate} at {task.dueTime}
+            </Typography>
+          )}
+        </Box>
         <form onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <TextField
@@ -74,9 +93,9 @@ const RescheduleTaskModal: React.FC<RescheduleTaskModalProps> = ({ open, onClose
               onChange={(e) => setNewDueTime(e.target.value)}
               InputLabelProps={{ shrink: true }}
             />
-            <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ pt: 2 }}>
-              <Button onClick={onClose} color="secondary">Cancel</Button>
-              <Button type="submit" variant="contained" color="primary">Save Changes</Button>
+            <Stack direction="row" spacing={1.5} justifyContent="flex-end" sx={{ pt: 1 }}>
+              <Button onClick={onClose} sx={{ color: 'text.secondary' }}>Cancel</Button>
+              <Button type="submit" variant="contained">Save Changes</Button>
             </Stack>
           </Stack>
         </form>

@@ -20,8 +20,8 @@ export default defineConfig(({ mode }) => {
             name: 'ClearDay AI Planner',
             short_name: 'ClearDay',
             description: 'A mindful AI productivity planner',
-            theme_color: '#111827',
-            background_color: '#111827',
+            theme_color: '#0F1419',
+            background_color: '#0F1419',
             display: 'standalone',
             icons: [
               {

@@ -1,6 +1,106 @@
-/* index.css */
+/* ClearDay Design System — Global Styles (DESIGN.md) */
+:root {
+  --cd-bg-base: #0F1419;
+  --cd-bg-surface: #171D24;
+  --cd-bg-surface-high: #1E2630;
+  --cd-bg-surface-highest: #263040;
+  --cd-primary: #5BA4CF;
+  --cd-primary-container: #1A3A4D;
+  --cd-on-primary: #FFFFFF;
+  --cd-on-primary-container: #A8D8F0;
+  --cd-secondary: #7A9E7E;
+  --cd-secondary-container: #1C2E1E;
+  --cd-on-secondary-container: #B5D4B8;
+  --cd-tertiary: #D4A76A;
+  --cd-tertiary-container: #3D2E1A;
+  --cd-success: #5CB882;
+  --cd-error: #E06C6C;
+  --cd-warning: #D4A76A;
+  --cd-text-primary: #E8ECF0;
+  --cd-text-secondary: #8899A6;
+  --cd-text-disabled: #4A5568;
+  --cd-outline: #2A3442;
+  --cd-outline-variant: #1E2832;
+  --cd-radius-sm: 8px;
+  --cd-radius-md: 12px;
+  --cd-radius-lg: 16px;
+  --cd-radius-full: 9999px;
+  --cd-duration-short: 150ms;
+  --cd-duration-medium: 300ms;
+  --cd-duration-long: 500ms;
+  --cd-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --cd-ease-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --cd-spring-gentle: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  margin: 0; padding: 0;
+  background-color: var(--cd-bg-base);
+  color: var(--cd-text-primary);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+::selection {
+  background-color: var(--cd-primary-container);
+  color: var(--cd-on-primary-container);
+}
+:focus-visible {
+  outline: 2px solid var(--cd-primary);
+  outline-offset: 2px;
+}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--cd-outline); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cd-text-disabled); }
+* { scrollbar-width: thin; scrollbar-color: var(--cd-outline) transparent; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.6; box-shadow: 0 0 8px rgba(91,164,207,0.2); }
+  50% { opacity: 1; box-shadow: 0 0 20px rgba(91,164,207,0.4); }
+}
+@keyframes typingDot {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-4px); }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+.cd-animate-in { animation: slideUp var(--cd-duration-medium) var(--cd-ease-emphasized) both; }
+.cd-fade-in { animation: fadeIn var(--cd-duration-medium) var(--cd-ease-standard) both; }
+.cd-stagger-1 { animation-delay: 50ms; }
+.cd-stagger-2 { animation-delay: 100ms; }
+.cd-stagger-3 { animation-delay: 150ms; }
+.cd-stagger-4 { animation-delay: 200ms; }
+
+.cd-typing-indicator {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 12px 18px;
+  background: var(--cd-bg-surface);
+  border-radius: 4px 16px 16px 16px;
+  border: 1px solid var(--cd-outline);
+}
+.cd-typing-indicator span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cd-text-secondary);
+  animation: typingDot 1.4s infinite ease-in-out;
+}
+.cd-typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.cd-typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+.cd-gradient-text {
+  background: linear-gradient(135deg, var(--cd-primary), var(--cd-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

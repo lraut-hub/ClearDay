@@ -1,8 +1,13 @@
 
-import { GenerateContentResponse, Part } from "@google/genai";
+import { Part } from "@google/generative-ai";
 import { Task } from '../types';
 
-const callApi = async (data: any): Promise<GenerateContentResponse> => {
+export interface AIResponse {
+    text?: string;
+    functionCalls?: { name: string; args: any }[];
+}
+
+const callApi = async (data: any): Promise<AIResponse> => {
     const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -18,8 +23,8 @@ const callApi = async (data: any): Promise<GenerateContentResponse> => {
     // Wrap the text response in a partial GenerateContentResponse-like object
     return {
         text: result.text,
-        // Mocking other properties if needed, but the app mostly uses .text
-    } as any;
+        functionCalls: result.functionCalls
+    };
 };
 
 const fileToGenerativePart = async (file: File) => {
@@ -86,7 +91,7 @@ const FUNCTION_CALLING_SYSTEM_INSTRUCTION = `You are a friendly and encouraging 
 - If a due date is ambiguous, calculate it based on today.
 - Respond with a natural, friendly confirmation.`;
 
-export const chatWithAI = async (history: Part[]): Promise<GenerateContentResponse> => {
+export const chatWithAI = async (history: any[]): Promise<AIResponse> => {
     try {
         const lastMessage = history[history.length - 1];
         const prompt = lastMessage.parts[0].text;

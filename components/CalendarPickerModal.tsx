@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Task } from '../types';
-import { Modal, Box, Typography, IconButton, Button, Stack, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Box, Typography, IconButton, Button, Stack, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { getCalendarDays, isSameDay, toISODateString } from '../utils/dateHelpers';
@@ -52,18 +52,39 @@ const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({ open, onClose
   };
   
   return (
-    <Dialog open={open} onClose={onClose} PaperProps={{ sx: { borderRadius: 4 } }}>
+    <Dialog open={open} onClose={onClose} PaperProps={{ sx: { borderRadius: 'var(--cd-radius-lg)' } }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
-        <IconButton onClick={handlePrevMonth} size="small"><ArrowBackIosNewIcon fontSize="inherit" /></IconButton>
-        <Typography variant="h6" component="span" fontWeight="bold">
+        <IconButton onClick={handlePrevMonth} size="small" sx={{ '&:hover': { transform: 'translateX(-2px)' } }}>
+          <ArrowBackIosNewIcon fontSize="inherit" />
+        </IconButton>
+        <Typography 
+          variant="h6" 
+          component="span" 
+          sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}
+        >
           {displayDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
         </Typography>
-        <IconButton onClick={handleNextMonth} size="small"><ArrowForwardIosIcon fontSize="inherit" /></IconButton>
+        <IconButton onClick={handleNextMonth} size="small" sx={{ '&:hover': { transform: 'translateX(2px)' } }}>
+          <ArrowForwardIosIcon fontSize="inherit" />
+        </IconButton>
       </DialogTitle>
       <DialogContent sx={{ p: 2 }}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, textAlign: 'center' }}>
-          {WEEKDAY_LABELS.map(day => (
-            <Typography key={day} variant="caption" color="text.secondary" fontWeight="medium">{day}</Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0.75, textAlign: 'center' }}>
+          {WEEKDAY_LABELS.map((day, i) => (
+            <Typography 
+              key={`${day}-${i}`} 
+              variant="caption" 
+              sx={{ 
+                color: 'text.disabled', 
+                fontWeight: 600, 
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '0.7rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
+              {day}
+            </Typography>
           ))}
           {calendarDays.map((day, index) => {
             const dayISO = toISODateString(day);
@@ -72,28 +93,42 @@ const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({ open, onClose
             const isToday = isSameDay(day, today);
             const tasksForDay = tasksByDate[dayISO] || [];
             
-            const dayStyle = {
-                display: 'flex',
-                flexDirection: 'column',
-                width: 40,
-                height: 40,
-                borderRadius: '50%',
-                border: isSelected ? '1px solid' : '1px solid transparent',
-                borderColor: isSelected ? 'primary.main' : 'transparent',
-                bgcolor: isToday ? 'action.hover' : 'transparent',
-                color: isCurrentMonth ? 'text.primary' : 'text.disabled',
-                p:0,
-                minWidth: 0,
-            };
-
             return (
               <Box key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <IconButton onClick={() => setSelectedDay(day)} sx={dayStyle} disabled={!isCurrentMonth}>
+                <IconButton 
+                  onClick={() => setSelectedDay(day)} 
+                  disabled={!isCurrentMonth}
+                  sx={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: '50%',
+                    fontSize: '0.85rem',
+                    fontWeight: isSelected || isToday ? 600 : 400,
+                    border: isToday && !isSelected ? '1.5px solid' : '1.5px solid transparent',
+                    borderColor: isToday && !isSelected ? 'primary.main' : 'transparent',
+                    bgcolor: isSelected ? 'primary.dark' : 'transparent',
+                    color: isSelected ? 'primary.light' : isCurrentMonth ? 'text.primary' : 'text.disabled',
+                    p: 0,
+                    minWidth: 0,
+                    transition: 'all 200ms cubic-bezier(0.2, 0, 0, 1)',
+                    '&:hover': {
+                      bgcolor: isSelected ? 'primary.dark' : 'rgba(91, 164, 207, 0.08)',
+                      transform: 'scale(1.1)',
+                    },
+                  }}
+                >
                   {day.getDate()}
                 </IconButton>
-                <Stack direction="row" spacing={0.5} sx={{ height: 4, mt: 0.5 }}>
-                    {isCurrentMonth && tasksForDay.slice(0, 4).map((_, i) => (
-                        <Box key={i} sx={{ width: 4, height: 4, borderRadius: '50%', bgcolor: 'primary.main', opacity: 0.7 }} />
+                <Stack direction="row" spacing={0.3} sx={{ height: 4, mt: 0.3 }}>
+                    {isCurrentMonth && tasksForDay.slice(0, 3).map((_, i) => (
+                        <Box 
+                          key={i} 
+                          sx={{ 
+                            width: 3, height: 3, borderRadius: '50%', 
+                            bgcolor: isSelected ? 'primary.light' : 'primary.main', 
+                            opacity: 0.8 
+                          }} 
+                        />
                     ))}
                 </Stack>
               </Box>
@@ -101,9 +136,9 @@ const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({ open, onClose
           })}
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleConfirm}>OK</Button>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={onClose} sx={{ color: 'text.secondary' }}>Cancel</Button>
+        <Button onClick={handleConfirm} variant="contained">Select</Button>
       </DialogActions>
     </Dialog>
   );

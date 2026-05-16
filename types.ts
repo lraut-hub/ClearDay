@@ -33,6 +33,7 @@ export enum Page {
   Settings = 'SETTINGS',
   Progress = 'PROGRESS',
   ImageAnalysis = 'IMAGE_ANALYSIS',
+  Admin = 'ADMIN',
 }
 
 // Notification Settings

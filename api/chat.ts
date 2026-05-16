@@ -1,5 +1,5 @@
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const config = {
   runtime: 'edge',
@@ -18,7 +18,7 @@ export default async function handler(req: Request) {
       return new Response(JSON.stringify({ error: 'API Key not configured' }), { status: 500 });
     }
 
-    const genAI = new GoogleGenAI(apiKey);
+    const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ 
         model: requestedModel || "gemini-1.5-flash",
         systemInstruction: systemInstruction
@@ -41,8 +41,9 @@ export default async function handler(req: Request) {
 
     const response = await result.response;
     const text = response.text();
+    const functionCalls = response.functionCalls();
 
-    return new Response(JSON.stringify({ text }), {
+    return new Response(JSON.stringify({ text, functionCalls }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

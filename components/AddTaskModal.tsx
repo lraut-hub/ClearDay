@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Task, TaskPriority } from '../types';
-import { Modal, Box, Typography, TextField, Button, Stack, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { Modal, Box, Typography, TextField, Button, Stack, ToggleButtonGroup, ToggleButton, Chip } from '@mui/material';
 import { Flag as FlagIcon, Notifications as NotificationsIcon } from '@mui/icons-material';
 
 interface QuickAddTaskModalProps {
@@ -10,17 +10,19 @@ interface QuickAddTaskModalProps {
   onAddTask: (task: Omit<Task, 'id' | 'status'>) => void;
 }
 
-const style = {
-  position: 'absolute' as 'absolute',
+const modalStyle = {
+  position: 'absolute' as const,
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '90%',
-  maxWidth: 400,
+  width: '92%',
+  maxWidth: 420,
   bgcolor: 'background.paper',
-  borderRadius: 3,
-  boxShadow: 24,
+  borderRadius: 'var(--cd-radius-lg)',
+  border: '1px solid var(--cd-outline)',
+  boxShadow: '0 16px 48px rgba(0, 0, 0, 0.4)',
   p: 3,
+  animation: 'scaleIn 300ms cubic-bezier(0.05, 0.7, 0.1, 1) both',
 };
 
 const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, onAddTask }) => {
@@ -87,14 +89,19 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
 
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="quick-add-task-modal-title">
-      <Box sx={style}>
-        <Typography id="quick-add-task-modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
-          Quick Add Task
+      <Box sx={modalStyle}>
+        <Typography 
+          id="quick-add-task-modal-title" 
+          variant="h5" 
+          component="h2" 
+          sx={{ mb: 2.5, fontFamily: "'DM Sans', sans-serif" }}
+        >
+          New Task
         </Typography>
         <form onSubmit={handleSubmit}>
           <Stack spacing={2.5}>
             <TextField
-              label="Task name"
+              label="What needs to be done?"
               variant="outlined"
               fullWidth
               value={title}
@@ -111,11 +118,35 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
                     value={dueDate}
                     onChange={handleDateChange}
                     InputLabelProps={{ shrink: true }}
-                    sx={{ mb: 1 }}
+                    sx={{ mb: 1.5 }}
                 />
                 <Stack direction="row" spacing={1}>
-                    <Button fullWidth variant={activeDateShortcut === 'today' ? 'contained' : 'outlined'} onClick={() => selectDateShortcut('today')}>Today</Button>
-                    <Button fullWidth variant={activeDateShortcut === 'tomorrow' ? 'contained' : 'outlined'} onClick={() => selectDateShortcut('tomorrow')}>Tomorrow</Button>
+                    <Chip 
+                      label="Today" 
+                      onClick={() => selectDateShortcut('today')}
+                      sx={{
+                        cursor: 'pointer',
+                        bgcolor: activeDateShortcut === 'today' ? 'primary.dark' : 'transparent',
+                        color: activeDateShortcut === 'today' ? 'primary.light' : 'text.secondary',
+                        borderColor: activeDateShortcut === 'today' ? 'primary.dark' : 'var(--cd-outline)',
+                        border: '1px solid',
+                        fontWeight: activeDateShortcut === 'today' ? 600 : 400,
+                        '&:hover': { bgcolor: 'primary.dark', color: 'primary.light' },
+                      }}
+                    />
+                    <Chip 
+                      label="Tomorrow" 
+                      onClick={() => selectDateShortcut('tomorrow')}
+                      sx={{
+                        cursor: 'pointer',
+                        bgcolor: activeDateShortcut === 'tomorrow' ? 'primary.dark' : 'transparent',
+                        color: activeDateShortcut === 'tomorrow' ? 'primary.light' : 'text.secondary',
+                        borderColor: activeDateShortcut === 'tomorrow' ? 'primary.dark' : 'var(--cd-outline)',
+                        border: '1px solid',
+                        fontWeight: activeDateShortcut === 'tomorrow' ? 600 : 400,
+                        '&:hover': { bgcolor: 'primary.dark', color: 'primary.light' },
+                      }}
+                    />
                 </Stack>
             </Box>
 
@@ -134,22 +165,60 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
                     value="reminder"
                     selected={reminderEnabled}
                     onChange={() => setReminderEnabled(!reminderEnabled)}
-                    color="success"
                     size="small"
+                    sx={{
+                      borderRadius: 'var(--cd-radius-sm) !important',
+                      px: 1.5,
+                      border: '1px solid var(--cd-outline) !important',
+                      '&.Mui-selected': {
+                        bgcolor: 'rgba(92, 184, 130, 0.15)',
+                        color: 'success.main',
+                        borderColor: 'rgba(92, 184, 130, 0.3) !important',
+                      },
+                    }}
                 >
-                    <NotificationsIcon />
-                    <Typography sx={{ ml: 1, textTransform: 'none', fontWeight: 500 }}>Reminder</Typography>
+                    <NotificationsIcon sx={{ fontSize: '1.1rem' }} />
+                    <Typography sx={{ ml: 0.75, textTransform: 'none', fontWeight: 500, fontSize: '0.85rem' }}>Remind</Typography>
                 </ToggleButton>
 
-                <ToggleButtonGroup value={priority} exclusive onChange={handlePriorityChange} aria-label="priority" size="small">
-                  <ToggleButton value="high" aria-label="high priority"><FlagIcon sx={{ color: 'error.main' }} /></ToggleButton>
-                  <ToggleButton value="medium" aria-label="medium priority"><FlagIcon sx={{ color: 'warning.main' }} /></ToggleButton>
-                </ToggleButtonGroup>
+                <Stack direction="row" spacing={0.75}>
+                  {(['high', 'medium'] as TaskPriority[]).map((p) => (
+                    <Box
+                      key={p}
+                      onClick={() => setPriority(priority === p ? null : p)}
+                      sx={{
+                        width: 32, height: 32,
+                        borderRadius: '50%',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer',
+                        border: '2px solid',
+                        borderColor: priority === p 
+                          ? (p === 'high' ? 'error.main' : 'warning.main') 
+                          : 'var(--cd-outline)',
+                        bgcolor: priority === p
+                          ? (p === 'high' ? 'rgba(224, 108, 108, 0.15)' : 'rgba(212, 167, 106, 0.15)')
+                          : 'transparent',
+                        transition: 'all 200ms ease',
+                        '&:hover': {
+                          borderColor: p === 'high' ? 'error.main' : 'warning.main',
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 10, height: 10, borderRadius: '50%',
+                          bgcolor: p === 'high' ? 'error.main' : 'warning.main',
+                          opacity: priority === p ? 1 : 0.4,
+                        }}
+                      />
+                    </Box>
+                  ))}
+                </Stack>
             </Stack>
             
-            <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ pt: 1 }}>
-              <Button onClick={onClose} color="secondary">Cancel</Button>
-              <Button type="submit" variant="contained" color="primary">Add Task</Button>
+            <Stack direction="row" spacing={1.5} justifyContent="flex-end" sx={{ pt: 1 }}>
+              <Button onClick={onClose} sx={{ color: 'text.secondary' }}>Cancel</Button>
+              <Button type="submit" variant="contained">Add Task</Button>
             </Stack>
           </Stack>
         </form>

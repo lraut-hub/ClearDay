@@ -11,10 +11,14 @@ import GoalsScreen from './pages/GoalsScreen';
 import SettingsScreen from './pages/SettingsScreen';
 import ProgressScreen from './pages/ProgressScreen';
 import ImageAnalysisScreen from './pages/ImageAnalysisScreen';
+import LoginScreen from './pages/LoginScreen';
+import AdminConsole from './pages/AdminConsole';
 import QuickAddTaskModal from './components/AddTaskModal';
 import RescheduleTaskModal from './components/RescheduleTaskModal';
-import { ThemeProvider, CssBaseline, Container, Box, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, Avatar, Typography as MuiTypography } from '@mui/material';
-import { Home as HomeIcon, Event as EventIcon, Timeline as TimelineIcon } from '@mui/icons-material';
+import { useAuth } from './hooks/useAuth';
+import { syncService } from './services/syncService';
+import { ThemeProvider, CssBaseline, Container, Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Divider, Avatar, Typography as MuiTypography } from '@mui/material';
+import { Home as HomeIcon, Event as EventIcon, Timeline as TimelineIcon, Security as AdminIcon } from '@mui/icons-material';
 import { theme } from './theme';
 
 export default function App() {
@@ -30,6 +34,29 @@ export default function App() {
   // State for dynamic header content
   const [headerTitle, setHeaderTitle] = useState<string | null>(null);
   const [headerBackAction, setHeaderBackAction] = useState<(() => void) | null>(null);
+  
+  const { user, loading: authLoading, signOut, isAdmin, isConfigured } = useAuth();
+
+  // Sync data from Cloud to Local on Login
+  React.useEffect(() => {
+    if (user) {
+      syncService.fetchUserData(user.id).then(({ tasks: cloudTasks, goals: cloudGoals }) => {
+        if (cloudTasks.length > 0) setTasks(cloudTasks);
+        if (cloudGoals.length > 0) setGoals(cloudGoals);
+      });
+    }
+  }, [user, setTasks, setGoals]);
+
+  // Sync data from Local to Cloud on Change
+  React.useEffect(() => {
+    if (user) {
+      const timer = setTimeout(() => {
+        syncService.saveTasks(user.id, tasks);
+        syncService.saveGoals(user.id, goals);
+      }, 2000); // Debounce sync
+      return () => clearTimeout(timer);
+    }
+  }, [tasks, goals, user]);
 
   const handleAddTask = useCallback((newTaskData: Omit<Task, 'id' | 'status'>) => {
     const newTask: Task = {
@@ -172,43 +199,128 @@ export default function App() {
         return <SettingsScreen settings={settings} setSettings={setSettings} />;
       case Page.Progress:
         return <ProgressScreen tasks={sortedTasks} goals={goals} deleteTask={deleteTask} />;
+      case Page.Admin:
+        if (!isAdmin) {
+          setActivePage(Page.Home);
+          return null;
+        }
+        return <AdminConsole />;
       default:
         return <HomeScreen tasks={sortedTasks} setActivePage={setActivePage} toggleTaskCompletion={toggleTaskCompletion} onAddTaskClick={() => setQuickAddTaskModalOpen(true)} onRescheduleTask={handleOpenRescheduleModal} />;
     }
   };
 
+  const navItems = [
+    { icon: <HomeIcon />, label: 'Home', page: Page.Home },
+    { icon: <EventIcon />, label: 'Calendar', page: Page.Schedule },
+    { icon: <TimelineIcon />, label: 'Progress', page: Page.Progress },
+  ];
+
+  if (isAdmin) {
+    navItems.push({ icon: <AdminIcon />, label: 'Admin Console', page: Page.Admin });
+  }
+
   const drawerContent = (
     <Box
-      sx={{ width: 250, height: '100%', display: 'flex', flexDirection: 'column' }}
+      sx={{ 
+        width: 270, 
+        height: '100%', 
+        display: 'flex', 
+        flexDirection: 'column',
+        py: 1,
+      }}
       role="presentation"
       onClick={() => setDrawerOpen(false)}
       onKeyDown={() => setDrawerOpen(false)}
     >
-      <List>
-          <ListItemButton onClick={() => navigate(Page.Home)} selected={activePage === Page.Home}>
-            <ListItemIcon><HomeIcon /></ListItemIcon>
-            <ListItemText primary="Home" />
+      {/* Brand */}
+      <Box sx={{ px: 2.5, py: 2, mb: 1 }}>
+        <MuiTypography
+          variant="h6"
+          className="cd-gradient-text"
+          sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: '1.3rem' }}
+        >
+          ClearDay
+        </MuiTypography>
+        <MuiTypography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+          Mindful productivity
+        </MuiTypography>
+      </Box>
+
+      <Divider sx={{ mx: 2 }} />
+
+      {/* Navigation */}
+      <List sx={{ px: 1, py: 1.5, flexGrow: 0 }}>
+        {navItems.map((item) => (
+          <ListItemButton
+            key={item.label}
+            onClick={() => navigate(item.page)}
+            selected={activePage === item.page}
+            sx={{ py: 1.2, mb: 0.5 }}
+          >
+            <ListItemIcon sx={{ minWidth: 40, color: activePage === item.page ? 'primary.light' : 'text.secondary' }}>
+              {item.icon}
+            </ListItemIcon>
+            <ListItemText 
+              primary={item.label}
+              primaryTypographyProps={{
+                fontWeight: activePage === item.page ? 600 : 400,
+                fontSize: '0.95rem',
+              }}
+            />
           </ListItemButton>
-          <ListItemButton onClick={() => navigate(Page.Schedule)} selected={activePage === Page.Schedule}>
-            <ListItemIcon><EventIcon /></ListItemIcon>
-            <ListItemText primary="Calendar" />
-          </ListItemButton>
-          <ListItemButton onClick={() => navigate(Page.Progress)} selected={activePage === Page.Progress}>
-            <ListItemIcon><TimelineIcon /></ListItemIcon>
-            <ListItemText primary="Progress" />
-          </ListItemButton>
+        ))}
       </List>
+
       <Box sx={{ flexGrow: 1 }} />
-      <Divider />
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar>A</Avatar>
-          <Box>
-            <MuiTypography variant="body1" fontWeight="bold">Alex</MuiTypography>
-            <MuiTypography variant="body2" color="text.secondary">alex@email.com</MuiTypography>
-          </Box>
+      <Divider sx={{ mx: 2 }} />
+
+      {/* User Section */}
+      <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Avatar
+          sx={{
+            width: 36,
+            height: 36,
+            bgcolor: 'primary.dark',
+            color: 'primary.light',
+            fontSize: '0.9rem',
+            fontWeight: 600,
+          }}
+        >
+          {user?.email?.[0].toUpperCase() || 'G'}
+        </Avatar>
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+          <MuiTypography variant="body2" fontWeight={600} noWrap sx={{ color: 'text.primary' }}>
+            {user?.email?.split('@')[0] || 'Guest'}
+          </MuiTypography>
+          <MuiTypography 
+            variant="caption" 
+            sx={{ 
+              color: 'primary.light', 
+              fontWeight: 500, 
+              cursor: 'pointer',
+              '&:hover': { textDecoration: 'underline' }
+            }}
+            onClick={() => user ? signOut() : setActivePage(Page.Home)}
+          >
+            {user ? 'Sign Out' : 'Sign In'}
+          </MuiTypography>
+        </Box>
       </Box>
     </Box>
   );
+
+  if (authLoading) return null;
+
+  // Always show LoginScreen if no user is authenticated
+  if (!user) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <LoginScreen />
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider theme={theme}>
