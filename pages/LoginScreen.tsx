@@ -27,6 +27,7 @@ export default function LoginScreen() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +44,9 @@ export default function LoginScreen() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else {
+        if (password !== confirmPassword) {
+          throw new Error('Passwords do not match');
+        }
         const { error } = await supabase.auth.signUp({ 
           email, 
           password,
@@ -51,12 +55,27 @@ export default function LoginScreen() {
           }
         });
         if (error) throw error;
-        setMessage('Check your email for the confirmation link!');
+        setMessage('Check your email for the confirmation link! (Note: Ensure localhost:3002 is listed in your Supabase Auth Redirect URLs)');
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError(null);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      setError('Google sign-in is not enabled in your Supabase Auth settings yet. Please configure Google OAuth in Supabase.');
     }
   };
 
@@ -184,6 +203,24 @@ export default function LoginScreen() {
                   }}
                 />
 
+                {!isLogin && (
+                  <TextField
+                    fullWidth
+                    label="Confirm Password"
+                    variant="outlined"
+                    type={showPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    sx={{ 
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 'var(--cd-radius-md)',
+                        backgroundColor: 'rgba(15, 20, 25, 0.4)',
+                      }
+                    }}
+                  />
+                )}
+
                 <Button
                   fullWidth
                   variant="contained"
@@ -212,6 +249,8 @@ export default function LoginScreen() {
                 <Button
                   fullWidth
                   variant="outlined"
+                  type="button"
+                  onClick={handleGoogleLogin}
                   startIcon={<GoogleIcon />}
                   sx={{ 
                     py: 1.2, 
