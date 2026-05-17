@@ -15,6 +15,7 @@ import LoginScreen from './pages/LoginScreen';
 import AdminConsole from './pages/AdminConsole';
 import QuickAddTaskModal from './components/AddTaskModal';
 import RescheduleTaskModal from './components/RescheduleTaskModal';
+import PWAInstallModal from './components/PWAInstallModal';
 import { useAuth } from './hooks/useAuth';
 import { syncService } from './services/syncService';
 import { ThemeProvider, CssBaseline, Container, Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Divider, Avatar, Typography as MuiTypography } from '@mui/material';
@@ -352,6 +353,7 @@ export default function App() {
           onReschedule={handleRescheduleTask}
           task={taskToReschedule}
         />
+        <PWAInstallModal userLoggedIn={!!user} />
       </Box>
     </ThemeProvider>
   );

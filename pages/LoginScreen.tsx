@@ -55,7 +55,7 @@ export default function LoginScreen() {
           }
         });
         if (error) throw error;
-        setMessage('Check your email for the confirmation link! (Note: Ensure localhost:3002 is listed in your Supabase Auth Redirect URLs)');
+        setMessage('Verification link sent! Please check your email. (Tip: If on mobile, open the link in Chrome or Safari to return directly to your app session).');
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred');

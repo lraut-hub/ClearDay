@@ -17,11 +17,13 @@ const modalStyle = {
   transform: 'translate(-50%, -50%)',
   width: '92%',
   maxWidth: 420,
+  maxHeight: '85dvh',
+  overflowY: 'auto',
   bgcolor: 'background.paper',
   borderRadius: 'var(--cd-radius-lg)',
   border: '1px solid var(--cd-outline)',
   boxShadow: '0 16px 48px rgba(0, 0, 0, 0.4)',
-  p: 3,
+  p: { xs: 2.5, sm: 3 },
   animation: 'scaleIn 300ms cubic-bezier(0.05, 0.7, 0.1, 1) both',
 };
 
