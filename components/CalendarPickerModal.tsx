@@ -52,7 +52,7 @@ const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({ open, onClose
   };
   
   return (
-    <Dialog open={open} onClose={onClose} PaperProps={{ sx: { borderRadius: 'var(--cd-radius-lg)' } }}>
+    <Dialog open={open} onClose={onClose} PaperProps={{ sx: { borderRadius: 'var(--cd-radius-lg)', minWidth: { xs: '90vw', sm: 400, md: 440 } } }}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pb: 1 }}>
         <IconButton onClick={handlePrevMonth} size="small" sx={{ '&:hover': { transform: 'translateX(-2px)' } }}>
           <ArrowBackIosNewIcon fontSize="inherit" />

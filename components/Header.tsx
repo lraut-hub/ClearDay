@@ -26,8 +26,18 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onMenuClick,
   const handleBack = onBack || (() => setActivePage(Page.Home));
   
   return (
-    <AppBar position="static" color="transparent" elevation={0}>
-      <Toolbar sx={{ gap: 1 }}>
+    <AppBar 
+      position="absolute" 
+      color="transparent" 
+      elevation={0}
+      sx={{ 
+        boxShadow: 'none', 
+        borderBottom: 'none', 
+        backgroundImage: 'none',
+        zIndex: 1000,
+      }}
+    >
+      <Toolbar sx={{ gap: 1, px: { xs: 1, sm: 2, md: 3 } }}>
         {activePage === Page.Home ? (
           <IconButton
             edge="start"

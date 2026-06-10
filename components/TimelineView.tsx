@@ -119,42 +119,41 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedDate, tasks, toggle
               sx={{
                 position: 'absolute',
                 top,
-                left: 10,
-                right: 10,
+                left: 8,
+                right: 16,
                 height,
-                minHeight: '30px',
-                bgcolor: isCompleted ? 'action.disabledBackground' : 'primary.dark',
-                color: isCompleted ? 'text.disabled' : 'primary.light',
-                borderRadius: 'var(--cd-radius-md)',
-                border: '1px solid',
-                borderColor: isCompleted ? 'transparent' : 'rgba(91, 164, 207, 0.2)',
-                p: 1.5,
+                minHeight: '24px',
+                bgcolor: isCompleted ? '#f1f3f4' : '#1a73e8', // Google Calendar blue
+                color: isCompleted ? 'text.disabled' : '#ffffff',
+                borderRadius: '4px',
+                p: 0.5,
+                px: 1,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'flex-start',
                 overflow: 'hidden',
-                opacity: isCompleted ? 0.5 : 1,
-                transition: 'all 300ms cubic-bezier(0.2, 0, 0, 1)',
-                boxShadow: isCompleted ? 'none' : '0 0 16px rgba(91, 164, 207, 0.08)',
+                opacity: isCompleted ? 0.6 : 1,
+                transition: 'all 150ms ease',
                 '&:hover': {
-                  boxShadow: isCompleted ? 'none' : '0 0 24px rgba(91, 164, 207, 0.15)',
-                  transform: 'scale(1.01)',
+                  filter: 'brightness(0.95)',
+                  cursor: 'pointer',
+                  zIndex: 2,
                 },
               }}
             >
               <Box>
                 <Typography 
-                  fontWeight={600} 
+                  fontWeight={500} 
                   sx={{ 
                     textDecoration: isCompleted ? 'line-through' : 'none',
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: '0.95rem',
+                    fontSize: '0.85rem',
+                    lineHeight: 1.2,
                   }}
                 >
                   {task.title}
                 </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.7, mt: 0.25 }}>
-                  {task.dueTime} – {endTimeString} ({formatDuration(duration)})
+                <Typography variant="caption" sx={{ opacity: 0.9, display: 'block', mt: 0.2 }}>
+                  {task.dueTime} – {endTimeString}
                 </Typography>
               </Box>
               <Checkbox 

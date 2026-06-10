@@ -43,4 +43,5 @@ export type VibrationPattern = 'default' | 'short' | 'long' | 'none';
 export interface AppSettings {
   sound: NotificationSound;
   vibration: VibrationPattern;
+  theme: 'dark' | 'light' | 'system';
 }

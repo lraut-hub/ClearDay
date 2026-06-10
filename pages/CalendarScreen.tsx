@@ -76,13 +76,14 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ tasks, toggleTaskComple
           onClick={() => handleSelectDay(day)} 
           sx={{
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: { xs: 'column', md: 'row' },
             alignItems: 'center',
-            justifyContent: 'center',
-            minWidth: 52,
-            height: 70,
+            justifyContent: { xs: 'center', md: 'flex-start' },
+            minWidth: { xs: 52, md: 'auto' },
+            height: { xs: 70, md: 56 },
             borderRadius: 'var(--cd-radius-md)',
-            p: 1,
+            p: { xs: 1, md: 1.5 },
+            gap: { xs: 0, md: 2 },
             border: '1.5px solid',
             borderColor: isToday && !isSelected ? 'primary.main' : isSelected ? 'primary.dark' : 'transparent',
             bgcolor: isSelected ? 'primary.dark' : 'transparent',
@@ -90,7 +91,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ tasks, toggleTaskComple
             cursor: 'pointer',
             transition: 'all 250ms cubic-bezier(0.2, 0, 0, 1)',
             '&:hover': {
-                transform: 'translateY(-3px)',
+                transform: { xs: 'translateY(-3px)', md: 'translateX(3px)' },
                 bgcolor: isSelected ? 'primary.dark' : 'rgba(91, 164, 207, 0.08)',
                 boxShadow: isSelected ? '0 6px 20px rgba(91, 164, 207, 0.2)' : '0 4px 12px rgba(0,0,0,0.15)',
             },
@@ -104,6 +105,8 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ tasks, toggleTaskComple
                 fontSize: '0.6rem',
                 fontWeight: 600,
                 letterSpacing: '0.5px',
+                width: { md: 40 },
+                textAlign: { md: 'left' },
               }}
             >
                 {day.toLocaleDateString(undefined, { weekday: 'short' })}
@@ -117,7 +120,8 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ tasks, toggleTaskComple
             >
               {day.getDate()}
             </Typography>
-            <Box sx={{ height: 4, mt: 0.5, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Box sx={{ flexGrow: { md: 1 } }} />
+            <Box sx={{ height: 4, mt: { xs: 0.5, md: 0 }, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 {hasTasks && (
                   <Box sx={{ 
                     width: 4, height: 4, borderRadius: '50%', 
@@ -131,8 +135,8 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ tasks, toggleTaskComple
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, height: 'calc(100vh - 100px)' }}>
-      <Box component="header" sx={{ flexShrink: 0 }} className="cd-animate-in">
+    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: { xs: 2, md: 4 }, height: 'calc(100vh - 100px)' }}>
+      <Box component="header" sx={{ flexShrink: 0, width: { xs: '100%', md: 240 } }} className="cd-animate-in">
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography 
                 variant="h4" 
@@ -162,9 +166,12 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ tasks, toggleTaskComple
             ref={weekContainerRef}
             sx={{ 
                 display: 'flex', 
+                flexDirection: { xs: 'row', md: 'column' },
                 gap: 1, 
-                overflowX: 'auto', 
+                overflowX: { xs: 'auto', md: 'hidden' }, 
+                overflowY: { xs: 'hidden', md: 'auto' },
                 pb: 1,
+                maxHeight: { md: 'calc(100vh - 160px)' },
                 scrollbarWidth: 'none',
                 '&::-webkit-scrollbar': { display: 'none' },
             }}

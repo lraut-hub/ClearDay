@@ -16,6 +16,46 @@ const priorityConfig = {
   low: { color: '#5BA4CF', label: 'Low' },
 };
 
+const Confetti = ({ active }: { active: boolean }) => {
+  if (!active) return null;
+  const particles = Array.from({ length: 14 }).map((_, i) => {
+    const angle = (i * 360 / 14 * Math.PI) / 180;
+    const distance = 20 + Math.random() * 25;
+    const tx = Math.cos(angle) * distance;
+    const ty = Math.sin(angle) * distance;
+    const colors = ['#E06C6C', '#D4A76A', '#5BA4CF', '#5CB882', '#A8D8F0'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const rot = Math.random() * 360;
+    return (
+      <React.Fragment key={i}>
+        <style>
+          {`
+            @keyframes confetti-${i} {
+              0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+              100% { transform: translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0) rotate(${rot}deg); opacity: 0; }
+            }
+          `}
+        </style>
+        <Box
+          sx={{
+            position: 'absolute',
+            width: 6,
+            height: 6,
+            bgcolor: color,
+            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+            top: '50%',
+            left: '50%',
+            pointerEvents: 'none',
+            zIndex: 10,
+            animation: `confetti-${i} 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards`,
+          }}
+        />
+      </React.Fragment>
+    );
+  });
+  return <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>{particles}</Box>;
+};
+
 const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onReschedule }) => {
   const { id, title, description, dueDate, dueTime, status, reminderTime, priority } = task;
   const isCompleted = status === 'completed';
@@ -23,6 +63,18 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onReschedule }) => 
   const [translateX, setTranslateX] = useState(0);
   const dragStartX = useRef(0);
   const cardRef = useRef<HTMLDivElement>(null);
+  
+  const [showConfetti, setShowConfetti] = useState(false);
+  const prevIsCompleted = useRef(isCompleted);
+
+  React.useEffect(() => {
+    if (isCompleted && !prevIsCompleted.current) {
+      setShowConfetti(true);
+      const timer = setTimeout(() => setShowConfetti(false), 800);
+      return () => clearTimeout(timer);
+    }
+    prevIsCompleted.current = isCompleted;
+  }, [isCompleted]);
   
   const handleDragStart = (e: React.TouchEvent) => {
     dragStartX.current = e.targetTouches[0].clientX;
@@ -89,9 +141,18 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onReschedule }) => 
         opacity: isCompleted ? 0.55 : 1,
         cursor: 'grab',
         overflow: 'visible',
+        borderRadius: { xs: 0, sm: 'var(--cd-radius-md)' },
+        bgcolor: { xs: 'transparent', sm: 'background.paper' },
+        boxShadow: (pConfig && !isCompleted) 
+            ? `0 0 24px ${pConfig.color}40, 0 0 8px ${pConfig.color}20` 
+            : (isCompleted ? 'none' : { xs: '0 1px 3px rgba(0,0,0,0.05)', sm: '0 4px 16px rgba(0, 0, 0, 0.2)' }),
+        border: (pConfig && !isCompleted) ? `1px solid ${pConfig.color}40` : { xs: 'none', sm: '1px solid transparent' },
+        borderBottom: { xs: '1px solid var(--cd-outline-variant)', sm: 'none' },
         '&:hover': {
           transform: `translateX(${translateX}px) translateY(-2px)`,
-          boxShadow: isCompleted ? 'none' : '0 4px 16px rgba(0, 0, 0, 0.2)',
+          boxShadow: (pConfig && !isCompleted) 
+              ? `0 0 32px ${pConfig.color}50, 0 0 12px ${pConfig.color}30` 
+              : (isCompleted ? 'none' : { xs: '0 2px 8px rgba(0,0,0,0.1)', sm: '0 8px 24px rgba(0, 0, 0, 0.3)' }),
         },
       }}
     >
@@ -100,8 +161,8 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onReschedule }) => 
         <Box
           sx={{
             position: 'absolute',
-            top: 12,
-            right: 12,
+            top: { xs: 16, sm: 12 },
+            right: { xs: 4, sm: 12 },
             width: 8,
             height: 8,
             borderRadius: '50%',
@@ -111,17 +172,27 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onReschedule }) => 
         />
       )}
 
-      <CardContent sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, pl: 1.5, '&:last-child': { pb: 2 } }}>
-        <Checkbox
-          checked={isCompleted}
-          onChange={() => onToggle(id)}
-          sx={{ 
-            mt: -0.5,
-            '& .MuiSvgIcon-root': {
-              fontSize: '1.3rem',
-            },
-          }}
-        />
+      <CardContent sx={{ 
+          display: 'flex', 
+          alignItems: 'flex-start', 
+          gap: { xs: 1, sm: 1.5 }, 
+          pl: { xs: 0, sm: 1.5 }, 
+          p: { xs: 1, sm: 2 },
+          '&:last-child': { pb: { xs: 1, sm: 2 } } 
+      }}>
+        <Box sx={{ position: 'relative' }}>
+          <Checkbox
+            checked={isCompleted}
+            onChange={() => onToggle(id)}
+            sx={{ 
+              mt: -0.5,
+              '& .MuiSvgIcon-root': {
+                fontSize: '1.3rem',
+              },
+            }}
+          />
+          <Confetti active={showConfetti} />
+        </Box>
         <Box flexGrow={1} sx={{ minWidth: 0 }}>
           <Typography 
             variant="body1" 

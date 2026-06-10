@@ -20,23 +20,34 @@ import { useAuth } from './hooks/useAuth';
 import { syncService } from './services/syncService';
 import { ThemeProvider, CssBaseline, Container, Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Divider, Avatar, Typography as MuiTypography } from '@mui/material';
 import { Home as HomeIcon, Event as EventIcon, Timeline as TimelineIcon, Security as AdminIcon } from '@mui/icons-material';
-import { theme } from './theme';
+import { getTheme, theme as fallbackTheme } from './theme';
 
 export default function App() {
   const [activePage, setActivePage] = useState<Page>(Page.Home);
   const [tasks, setTasks] = useLocalStorage<Task[]>('tasks', []);
   const [goals, setGoals] = useLocalStorage<Goal[]>('goals', []);
-  const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', { sound: 'default', vibration: 'default' });
+  const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', { sound: 'default', vibration: 'default', theme: 'system' });
   const [isQuickAddTaskModalOpen, setQuickAddTaskModalOpen] = useState(false);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isRescheduleModalOpen, setRescheduleModalOpen] = useState(false);
   const [taskToReschedule, setTaskToReschedule] = useState<Task | null>(null);
+  const [isGuest, setIsGuest] = useLocalStorage<boolean>('cd_is_guest', false);
 
   // State for dynamic header content
   const [headerTitle, setHeaderTitle] = useState<string | null>(null);
   const [headerBackAction, setHeaderBackAction] = useState<(() => void) | null>(null);
   
   const { user, loading: authLoading, signOut, isAdmin, isConfigured } = useAuth();
+
+  const currentUser = user || (isGuest ? { id: 'guest', email: 'guest@clearday.local' } as any : null);
+
+  const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const actualThemeMode = settings.theme === 'system' ? (prefersDarkMode ? 'dark' : 'light') : settings.theme;
+  const currentTheme = React.useMemo(() => getTheme(actualThemeMode), [actualThemeMode]);
+
+  React.useEffect(() => {
+    document.body.className = `theme-${actualThemeMode}`;
+  }, [actualThemeMode]);
 
   // Sync data from Cloud to Local on Login
   React.useEffect(() => {
@@ -224,7 +235,7 @@ export default function App() {
   const drawerContent = (
     <Box
       sx={{ 
-        width: 270, 
+        width: { xs: 270, sm: 300, md: 320 }, 
         height: '100%', 
         display: 'flex', 
         flexDirection: 'column',
@@ -288,11 +299,11 @@ export default function App() {
             fontWeight: 600,
           }}
         >
-          {user?.email?.[0].toUpperCase() || 'G'}
+          {currentUser?.email?.[0].toUpperCase() || 'G'}
         </Avatar>
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
           <MuiTypography variant="body2" fontWeight={600} noWrap sx={{ color: 'text.primary' }}>
-            {user?.email?.split('@')[0] || 'Guest'}
+            {currentUser?.email?.split('@')[0] || 'Guest'}
           </MuiTypography>
           <MuiTypography 
             variant="caption" 
@@ -302,9 +313,15 @@ export default function App() {
               cursor: 'pointer',
               '&:hover': { textDecoration: 'underline' }
             }}
-            onClick={() => user ? signOut() : setActivePage(Page.Home)}
+            onClick={() => {
+              if (user) {
+                signOut();
+              } else {
+                setIsGuest(false);
+              }
+            }}
           >
-            {user ? 'Sign Out' : 'Sign In'}
+            {user || isGuest ? 'Sign Out' : 'Sign In'}
           </MuiTypography>
         </Box>
       </Box>
@@ -313,18 +330,18 @@ export default function App() {
 
   if (authLoading) return null;
 
-  // Always show LoginScreen if no user is authenticated
-  if (!user) {
+  // Always show LoginScreen if no user is authenticated and not in guest mode
+  if (!currentUser) {
     return (
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={currentTheme}>
         <CssBaseline />
-        <LoginScreen />
+        <LoginScreen onContinueAsGuest={() => setIsGuest(true)} />
       </ThemeProvider>
     );
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={currentTheme}>
       <CssBaseline />
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         <Header 
@@ -337,7 +354,7 @@ export default function App() {
         <Drawer anchor="left" open={isDrawerOpen} onClose={() => setDrawerOpen(false)}>
             {drawerContent}
         </Drawer>
-        <Container component="main" maxWidth="md" sx={{ flexGrow: 1, py: 2 }}>
+        <Container component="main" maxWidth="lg" sx={{ flexGrow: 1, py: { xs: 2, md: 4 }, px: { xs: 2, sm: 3, md: 4 } }}>
           {renderPage()}
         </Container>
         {isQuickAddTaskModalOpen && (
@@ -353,7 +370,7 @@ export default function App() {
           onReschedule={handleRescheduleTask}
           task={taskToReschedule}
         />
-        <PWAInstallModal userLoggedIn={!!user} />
+        <PWAInstallModal userLoggedIn={!!currentUser} />
       </Box>
     </ThemeProvider>
   );

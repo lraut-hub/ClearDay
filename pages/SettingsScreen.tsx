@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { AppSettings } from '../types';
 import MobilePreviewModal from '../components/MobilePreviewModal';
-import { Typography, Box, Card, CardContent, FormControl, Select, MenuItem, InputLabel, IconButton, Button, SelectChangeEvent, Divider } from '@mui/material';
-import { PlayArrow as PlayArrowIcon, Vibration as VibrationIcon, PhoneIphone as PhoneIphoneIcon, InfoOutlined as InfoOutlinedIcon } from '@mui/icons-material';
+import { Typography, Box, Card, CardContent, FormControl, Select, MenuItem, InputLabel, IconButton, Button, SelectChangeEvent, Divider, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { PlayArrow as PlayArrowIcon, Vibration as VibrationIcon, PhoneIphone as PhoneIphoneIcon, InfoOutlined as InfoOutlinedIcon, DarkModeOutlined as DarkModeIcon, LightModeOutlined as LightModeIcon, SettingsBrightnessOutlined as SystemModeIcon } from '@mui/icons-material';
 
 interface SettingsScreenProps {
   settings: AppSettings;
@@ -15,6 +15,11 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ settings, setSettings }
 
   const handleSoundChange = (event: SelectChangeEvent) => { setSettings({ ...settings, sound: event.target.value as AppSettings['sound'] }); };
   const handleVibrationChange = (event: SelectChangeEvent) => { setSettings({ ...settings, vibration: event.target.value as AppSettings['vibration'] }); };
+  const handleThemeChange = (event: React.MouseEvent<HTMLElement>, newTheme: 'dark' | 'light' | 'system' | null) => {
+    if (newTheme !== null) {
+      setSettings({ ...settings, theme: newTheme });
+    }
+  };
   
   const testSound = () => {
     try {
@@ -35,6 +40,34 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ settings, setSettings }
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
         Personalize your ClearDay experience.
       </Typography>
+
+      {/* Appearance */}
+      <Card sx={{ mb: 2.5 }}>
+        <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Typography variant="h5" component="h2" sx={{ fontFamily: "'DM Sans', sans-serif" }}>Appearance</Typography>
+          <Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Color Theme</Typography>
+            <ToggleButtonGroup
+              value={settings.theme || 'system'}
+              exclusive
+              onChange={handleThemeChange}
+              fullWidth
+              size="small"
+              sx={{ bgcolor: 'background.default' }}
+            >
+              <ToggleButton value="light">
+                <LightModeIcon sx={{ fontSize: '1.2rem', mr: 1 }} /> Light
+              </ToggleButton>
+              <ToggleButton value="dark">
+                <DarkModeIcon sx={{ fontSize: '1.2rem', mr: 1 }} /> Dark
+              </ToggleButton>
+              <ToggleButton value="system">
+                <SystemModeIcon sx={{ fontSize: '1.2rem', mr: 1 }} /> System
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+        </CardContent>
+      </Card>
 
       {/* Notifications */}
       <Card sx={{ mb: 2.5 }}>

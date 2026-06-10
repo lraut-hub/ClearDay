@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Task, TaskPriority } from '../types';
-import { Modal, Box, Typography, TextField, Button, Stack, ToggleButtonGroup, ToggleButton, Chip } from '@mui/material';
-import { Flag as FlagIcon, Notifications as NotificationsIcon } from '@mui/icons-material';
+import { Modal, Box, Typography, TextField, Button, Stack, Chip, IconButton } from '@mui/material';
+import { AccessTime as AccessTimeIcon, Event as EventIcon, Close as CloseIcon, Star as StarIcon } from '@mui/icons-material';
 
 interface QuickAddTaskModalProps {
   open: boolean;
@@ -15,16 +15,15 @@ const modalStyle = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '92%',
-  maxWidth: 420,
-  maxHeight: '85dvh',
+  width: { xs: '92%', sm: 480 },
+  maxWidth: '100%',
+  maxHeight: '90dvh',
   overflowY: 'auto',
   bgcolor: 'background.paper',
-  borderRadius: 'var(--cd-radius-lg)',
-  border: '1px solid var(--cd-outline)',
-  boxShadow: '0 16px 48px rgba(0, 0, 0, 0.4)',
-  p: { xs: 2.5, sm: 3 },
-  animation: 'scaleIn 300ms cubic-bezier(0.05, 0.7, 0.1, 1) both',
+  borderRadius: '8px', // Google Calendar uses 8px border radius
+  boxShadow: '0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2)', // Material-like strong shadow
+  p: 0, // padding handled inside
+  animation: 'scaleInCentered 200ms cubic-bezier(0.0, 0, 0.2, 1) both',
 };
 
 const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, onAddTask }) => {
@@ -35,8 +34,13 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
     return tomorrow.toISOString().split('T')[0];
   };
 
+  const getCurrentTime = () => {
+    const now = new Date();
+    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  };
+
   const [title, setTitle] = useState('');
-  const [dueTime, setDueTime] = useState('');
+  const [dueTime, setDueTime] = useState(getCurrentTime());
   const [dueDate, setDueDate] = useState(getToday());
   const [activeDateShortcut, setActiveDateShortcut] = useState<'today' | 'tomorrow' | null>('today');
   const [reminderEnabled, setReminderEnabled] = useState(false);
@@ -45,7 +49,7 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
   useEffect(() => {
     if (open) {
       setTitle('');
-      setDueTime('');
+      setDueTime(getCurrentTime());
       setDueDate(getToday());
       setActiveDateShortcut('today');
       setReminderEnabled(false);
@@ -92,138 +96,130 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="quick-add-task-modal-title">
       <Box sx={modalStyle}>
-        <Typography 
-          id="quick-add-task-modal-title" 
-          variant="h5" 
-          component="h2" 
-          sx={{ mb: 2.5, fontFamily: "'DM Sans', sans-serif" }}
-        >
-          New Task
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <Stack spacing={2.5}>
-            <TextField
-              label="What needs to be done?"
-              variant="outlined"
-              fullWidth
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              autoFocus
-            />
-            
-            <Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1, bgcolor: 'transparent' }}>
+          <IconButton onClick={onClose} size="small" sx={{ ml: 1 }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+          <Button type="submit" variant="contained" onClick={handleSubmit} sx={{ textTransform: 'none', borderRadius: 1, boxShadow: 'none', px: 3 }}>
+            Save
+          </Button>
+        </Box>
+        
+        <Box sx={{ p: { xs: 2, sm: 3 }, pt: 1 }}>
+          <form onSubmit={handleSubmit}>
+            <Stack spacing={3}>
+              <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                <Box sx={{ width: 40 }} /> {/* Spacer for alignment */}
                 <TextField
-                    label="Due Date"
-                    type="date"
-                    fullWidth
-                    value={dueDate}
-                    onChange={handleDateChange}
-                    InputLabelProps={{ shrink: true }}
-                    sx={{ mb: 1.5 }}
+                  placeholder="Add title"
+                  variant="standard"
+                  fullWidth
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  autoFocus
+                  InputProps={{
+                    disableUnderline: true,
+                    sx: { fontSize: '1.4rem', fontWeight: 400, borderBottom: '2px solid transparent', '&.Mui-focused': { borderBottomColor: 'primary.main' } }
+                  }}
                 />
-                <Stack direction="row" spacing={1}>
-                    <Chip 
-                      label="Today" 
-                      onClick={() => selectDateShortcut('today')}
-                      sx={{
-                        cursor: 'pointer',
-                        bgcolor: activeDateShortcut === 'today' ? 'primary.dark' : 'transparent',
-                        color: activeDateShortcut === 'today' ? 'primary.light' : 'text.secondary',
-                        borderColor: activeDateShortcut === 'today' ? 'primary.dark' : 'var(--cd-outline)',
-                        border: '1px solid',
-                        fontWeight: activeDateShortcut === 'today' ? 600 : 400,
-                        '&:hover': { bgcolor: 'primary.dark', color: 'primary.light' },
+              </Box>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <EventIcon color="action" />
+                  <TextField
+                      type="date"
+                      variant="standard"
+                      value={dueDate}
+                      onChange={handleDateChange}
+                      onClick={(e) => { try { (e.target as HTMLInputElement).showPicker() } catch(err) {} }}
+                      InputProps={{ 
+                          disableUnderline: true, 
+                          sx: { 
+                              fontSize: '0.9rem',
+                              cursor: 'pointer',
+                              '& input::-webkit-calendar-picker-indicator': { display: 'none', '-webkit-appearance': 'none' },
+                              '& input': { cursor: 'pointer' }
+                          } 
                       }}
-                    />
-                    <Chip 
-                      label="Tomorrow" 
-                      onClick={() => selectDateShortcut('tomorrow')}
-                      sx={{
-                        cursor: 'pointer',
-                        bgcolor: activeDateShortcut === 'tomorrow' ? 'primary.dark' : 'transparent',
-                        color: activeDateShortcut === 'tomorrow' ? 'primary.light' : 'text.secondary',
-                        borderColor: activeDateShortcut === 'tomorrow' ? 'primary.dark' : 'var(--cd-outline)',
-                        border: '1px solid',
-                        fontWeight: activeDateShortcut === 'tomorrow' ? 600 : 400,
-                        '&:hover': { bgcolor: 'primary.dark', color: 'primary.light' },
-                      }}
-                    />
-                </Stack>
-            </Box>
-
-            <TextField
-              label="Time (Optional)"
-              type="time"
-              variant="outlined"
-              fullWidth
-              value={dueTime}
-              onChange={(e) => setDueTime(e.target.value)}
-              InputLabelProps={{ shrink: true }}
-            />
-            
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <ToggleButton
-                    value="reminder"
-                    selected={reminderEnabled}
-                    onChange={() => setReminderEnabled(!reminderEnabled)}
-                    size="small"
-                    sx={{
-                      borderRadius: 'var(--cd-radius-sm) !important',
-                      px: 1.5,
-                      border: '1px solid var(--cd-outline) !important',
-                      '&.Mui-selected': {
-                        bgcolor: 'rgba(92, 184, 130, 0.15)',
-                        color: 'success.main',
-                        borderColor: 'rgba(92, 184, 130, 0.3) !important',
-                      },
-                    }}
-                >
-                    <NotificationsIcon sx={{ fontSize: '1.1rem' }} />
-                    <Typography sx={{ ml: 0.75, textTransform: 'none', fontWeight: 500, fontSize: '0.85rem' }}>Remind</Typography>
-                </ToggleButton>
-
-                <Stack direction="row" spacing={0.75}>
-                  {(['high', 'medium'] as TaskPriority[]).map((p) => (
-                    <Box
-                      key={p}
-                      onClick={() => setPriority(priority === p ? null : p)}
-                      sx={{
-                        width: 32, height: 32,
-                        borderRadius: '50%',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer',
-                        border: '2px solid',
-                        borderColor: priority === p 
-                          ? (p === 'high' ? 'error.main' : 'warning.main') 
-                          : 'var(--cd-outline)',
-                        bgcolor: priority === p
-                          ? (p === 'high' ? 'rgba(224, 108, 108, 0.15)' : 'rgba(212, 167, 106, 0.15)')
-                          : 'transparent',
-                        transition: 'all 200ms ease',
-                        '&:hover': {
-                          borderColor: p === 'high' ? 'error.main' : 'warning.main',
-                        },
-                      }}
-                    >
-                      <Box
+                  />
+                  <Stack direction="row" spacing={1} sx={{ ml: 2 }}>
+                      <Chip 
+                        label="Today" 
+                        size="small"
+                        onClick={() => selectDateShortcut('today')}
                         sx={{
-                          width: 10, height: 10, borderRadius: '50%',
-                          bgcolor: p === 'high' ? 'error.main' : 'warning.main',
-                          opacity: priority === p ? 1 : 0.4,
+                          cursor: 'pointer',
+                          bgcolor: activeDateShortcut === 'today' ? '#e8f0fe' : 'transparent',
+                          color: activeDateShortcut === 'today' ? '#1a73e8' : 'text.secondary',
+                          '&:hover': { bgcolor: '#f1f3f4' },
                         }}
                       />
-                    </Box>
-                  ))}
-                </Stack>
+                      <Chip 
+                        label="Tomorrow" 
+                        size="small"
+                        onClick={() => selectDateShortcut('tomorrow')}
+                        sx={{
+                          cursor: 'pointer',
+                          bgcolor: activeDateShortcut === 'tomorrow' ? '#e8f0fe' : 'transparent',
+                          color: activeDateShortcut === 'tomorrow' ? '#1a73e8' : 'text.secondary',
+                          '&:hover': { bgcolor: '#f1f3f4' },
+                        }}
+                      />
+                  </Stack>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <AccessTimeIcon color="action" />
+                  <TextField
+                    type="time"
+                    variant="standard"
+                    value={dueTime}
+                    onChange={(e) => setDueTime(e.target.value)}
+                    onClick={(e) => { try { (e.target as HTMLInputElement).showPicker() } catch(err) {} }}
+                    InputProps={{ 
+                        disableUnderline: true, 
+                        sx: { 
+                            fontSize: '0.9rem',
+                            cursor: 'pointer',
+                            '& input::-webkit-calendar-picker-indicator': { display: 'none', '-webkit-appearance': 'none' },
+                            '& input': { cursor: 'pointer' }
+                        } 
+                    }}
+                  />
+              </Box>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                    <IconButton 
+                      onClick={() => setPriority(priority === 'high' ? null : 'high')} 
+                      sx={{ p: 0.5, transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' } }}
+                    >
+                      <StarIcon sx={{ 
+                        color: 'error.main', 
+                        fontSize: '2rem', 
+                        filter: priority === 'high' ? 'drop-shadow(0 0 12px rgba(224,108,108,0.8))' : 'none',
+                        opacity: priority === 'high' || priority === null ? 1 : 0.4,
+                        transition: 'all 0.2s'
+                      }} />
+                    </IconButton>
+                    <IconButton 
+                      onClick={() => setPriority(priority === 'medium' ? null : 'medium')} 
+                      sx={{ p: 0.5, transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' } }}
+                    >
+                      <StarIcon sx={{ 
+                        color: 'warning.main', 
+                        fontSize: '2rem', 
+                        filter: priority === 'medium' ? 'drop-shadow(0 0 12px rgba(212,167,106,0.8))' : 'none',
+                        opacity: priority === 'medium' || priority === null ? 1 : 0.4,
+                        transition: 'all 0.2s'
+                      }} />
+                    </IconButton>
+                  </Box>
+              </Box>
             </Stack>
-            
-            <Stack direction="row" spacing={1.5} justifyContent="flex-end" sx={{ pt: 1 }}>
-              <Button onClick={onClose} sx={{ color: 'text.secondary' }}>Cancel</Button>
-              <Button type="submit" variant="contained">Add Task</Button>
-            </Stack>
-          </Stack>
-        </form>
+          </form>
+        </Box>
       </Box>
     </Modal>
   );

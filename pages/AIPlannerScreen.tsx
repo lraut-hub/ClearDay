@@ -138,7 +138,7 @@ const AIPlannerScreen: React.FC<AIPlannerScreenProps> = ({ onAddTasks }) => {
                 >
                     <Paper sx={{ 
                       p: 1.5, 
-                      maxWidth: '80%', 
+                      maxWidth: { xs: '85%', md: '65%' }, 
                       bgcolor: isAI ? 'var(--cd-bg-surface)' : 'var(--cd-primary-container)',
                       color: isAI ? 'text.primary' : 'var(--cd-on-primary-container)',
                       borderRadius: isAI ? '4px 16px 16px 16px' : '16px 4px 16px 16px',
@@ -172,6 +172,9 @@ const AIPlannerScreen: React.FC<AIPlannerScreenProps> = ({ onAddTasks }) => {
         borderRadius: 'var(--cd-radius-full)',
         bgcolor: 'var(--cd-bg-surface-high)',
         border: '1px solid var(--cd-outline)',
+        maxWidth: 800,
+        mx: 'auto',
+        width: '100%',
       }}>
         <TextField
           fullWidth

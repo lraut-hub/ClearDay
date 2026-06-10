@@ -23,7 +23,7 @@ import {
 } from '@mui/icons-material';
 import { supabase } from '../services/supabaseClient';
 
-export default function LoginScreen() {
+export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: () => void }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -265,6 +265,26 @@ export default function LoginScreen() {
                   }}
                 >
                   Continue with Google
+                </Button>
+
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  type="button"
+                  onClick={onContinueAsGuest}
+                  sx={{ 
+                    py: 1.2, 
+                    borderRadius: 'var(--cd-radius-md)',
+                    textTransform: 'none',
+                    borderColor: 'var(--cd-outline)',
+                    color: 'var(--cd-text-secondary)',
+                    '&:hover': {
+                      borderColor: 'var(--cd-text-primary)',
+                      backgroundColor: 'rgba(255,255,255,0.05)'
+                    }
+                  }}
+                >
+                  Continue as Guest (Offline Mode)
                 </Button>
               </Box>
             </form>

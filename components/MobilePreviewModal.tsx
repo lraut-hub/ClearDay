@@ -13,15 +13,15 @@ const modalStyle = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '92%',
-  maxWidth: 450,
+  width: { xs: '92%', sm: 480, md: 520 },
+  maxWidth: '100%',
   bgcolor: 'background.paper',
   borderRadius: 'var(--cd-radius-lg)',
   border: '1px solid var(--cd-outline)',
   boxShadow: '0 16px 48px rgba(0, 0, 0, 0.4)',
-  p: 3,
+  p: { xs: 3, md: 4 },
   textAlign: 'center',
-  animation: 'scaleIn 300ms cubic-bezier(0.05, 0.7, 0.1, 1) both',
+  animation: 'scaleInCentered 300ms cubic-bezier(0.05, 0.7, 0.1, 1) both',
 };
 
 const CodeBlock: React.FC<{ children: React.ReactNode }> = ({ children }) => (

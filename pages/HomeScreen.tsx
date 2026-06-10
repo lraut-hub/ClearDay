@@ -128,7 +128,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ tasks, setActivePage, toggleTas
       </Box>
 
       {/* Task List */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, minHeight: 100 }}>
+      <Box sx={{ 
+        display: 'grid', 
+        gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, 
+        gap: { xs: 0, sm: 2 }, 
+        minHeight: 100 
+      }}>
         {todayTasks.length > 0 ? (
             todayTasks.map((task, index) => (
                 <Box key={task.id} className={`cd-animate-in cd-stagger-${Math.min(index + 2, 5)}`}>
@@ -143,7 +148,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ tasks, setActivePage, toggleTas
       {/* SpeedDial */}
       <SpeedDial
         ariaLabel="AI Actions"
-        sx={{ position: 'fixed', bottom: 32, right: 24 }}
+        sx={{ position: 'fixed', bottom: { xs: 32, md: 48 }, right: { xs: 24, md: 40 } }}
         icon={<SpeedDialIcon icon={<AutoAwesomeIcon />} />}
       >
         {actions.map((action) => (
