@@ -94,7 +94,7 @@ export default function PWAInstallModal({ userLoggedIn }: PWAInstallModalProps) 
         localStorage.setItem('addToHomeScreenPromptOptOut', 'true');
         setOpen(false);
       }
-    } else if (isIOS) {
+    } else {
       // Just close modal since they have to follow instructions
       setOpen(false);
     }
@@ -168,17 +168,19 @@ export default function PWAInstallModal({ userLoggedIn }: PWAInstallModalProps) 
         </Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3, lineHeight: 1.6 }}>
-          Add ClearDay to your Home Screen and App Menu for faster access and a smoother experience.
+          Reminders and future nudges require ClearDay to be added to your device and notification permissions enabled. You can continue using ClearDay without adding it, but you will not receive reminder notifications.
         </Typography>
 
-        {isIOS && !promptEvent ? (
+        {!promptEvent ? (
           <Box sx={{ background: 'rgba(91, 164, 207, 0.1)', p: 2, borderRadius: 'var(--cd-radius-md)', border: '1px solid var(--cd-outline)', mb: 3, textAlign: 'left' }}>
             <Stack direction="row" spacing={1.5} alignItems="center">
               <TapIcon sx={{ color: 'var(--cd-primary)', fontSize: 24 }} />
               <Typography variant="caption" sx={{ color: 'text.primary', lineHeight: 1.4 }}>
-                1. Tap the <b>Share</b> button below.<br/>
-                2. Select <b>"Add to Home Screen"</b>.<br/>
-                3. Confirm.
+                {isIOS ? (
+                  <>1. Tap the <b>Share</b> button below.<br/>2. Select <b>"Add to Home Screen"</b>.<br/>3. Confirm.</>
+                ) : (
+                  <>1. Tap the <b>Browser Menu</b> (3 dots).<br/>2. Select <b>"Add to Home screen"</b> or <b>"Install app"</b>.<br/>3. Confirm.</>
+                )}
               </Typography>
             </Stack>
           </Box>

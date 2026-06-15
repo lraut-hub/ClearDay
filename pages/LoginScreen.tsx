@@ -127,14 +127,14 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
               sx={{ 
                 fontFamily: "'DM Sans', sans-serif", 
                 fontWeight: 700,
-                color: 'var(--cd-text-primary)',
+                color: '#FFFFFF',
                 letterSpacing: '-0.02em',
                 mb: 1
               }}
             >
               {isLogin ? 'Welcome Back' : 'Create Account'}
             </Typography>
-            <Typography variant="body2" sx={{ color: 'var(--cd-text-secondary)', fontWeight: 500 }}>
+            <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
               {isLogin ? 'Your mind is clear, let\'s keep it that way.' : 'Start your journey to calm productivity.'}
             </Typography>
           </Box>
@@ -175,6 +175,10 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 'var(--cd-radius-md)',
                       backgroundColor: 'rgba(15, 20, 25, 0.4)',
+                      color: '#FFFFFF',
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: 'rgba(255,255,255,0.7)',
                     }
                   }}
                 />
@@ -199,6 +203,13 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
                     '& .MuiOutlinedInput-root': {
                       borderRadius: 'var(--cd-radius-md)',
                       backgroundColor: 'rgba(15, 20, 25, 0.4)',
+                      color: '#FFFFFF',
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: 'rgba(255,255,255,0.7)',
+                    },
+                    '& .MuiIconButton-root': {
+                      color: 'rgba(255,255,255,0.7)',
                     }
                   }}
                 />
@@ -216,6 +227,13 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
                       '& .MuiOutlinedInput-root': {
                         borderRadius: 'var(--cd-radius-md)',
                         backgroundColor: 'rgba(15, 20, 25, 0.4)',
+                        color: '#FFFFFF',
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: 'rgba(255,255,255,0.7)',
+                      },
+                      '& .MuiIconButton-root': {
+                        color: 'rgba(255,255,255,0.7)',
                       }
                     }}
                   />
@@ -242,8 +260,8 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
                   {loading ? <CircularProgress size={24} color="inherit" /> : (isLogin ? 'Sign In' : 'Join ClearDay')}
                 </Button>
 
-                <Divider sx={{ my: 1, '&::before, &::after': { borderColor: 'var(--cd-outline-variant)' } }}>
-                  <Typography variant="caption" sx={{ color: 'var(--cd-text-disabled)', px: 1 }}>OR</Typography>
+                <Divider sx={{ my: 1, '&::before, &::after': { borderColor: 'rgba(255,255,255,0.2)' } }}>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', px: 1 }}>OR</Typography>
                 </Divider>
 
                 <Button
@@ -256,10 +274,10 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
                     py: 1.2, 
                     borderRadius: 'var(--cd-radius-md)',
                     textTransform: 'none',
-                    borderColor: 'var(--cd-outline)',
-                    color: 'var(--cd-text-primary)',
+                    borderColor: 'rgba(255,255,255,0.3)',
+                    color: '#FFFFFF',
                     '&:hover': {
-                      borderColor: 'var(--cd-text-secondary)',
+                      borderColor: 'rgba(255,255,255,0.6)',
                       backgroundColor: 'rgba(255,255,255,0.05)'
                     }
                   }}
@@ -276,10 +294,11 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
                     py: 1.2, 
                     borderRadius: 'var(--cd-radius-md)',
                     textTransform: 'none',
-                    borderColor: 'var(--cd-outline)',
-                    color: 'var(--cd-text-secondary)',
+                    borderColor: 'rgba(255,255,255,0.3)',
+                    color: 'rgba(255,255,255,0.7)',
                     '&:hover': {
-                      borderColor: 'var(--cd-text-primary)',
+                      borderColor: 'rgba(255,255,255,0.6)',
+                      color: '#FFFFFF',
                       backgroundColor: 'rgba(255,255,255,0.05)'
                     }
                   }}
@@ -290,7 +309,7 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
             </form>
 
             <Box sx={{ mt: 4, textAlign: 'center' }}>
-              <Typography variant="body2" sx={{ color: 'var(--cd-text-secondary)' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                 {isLogin ? "New to ClearDay?" : "Already have an account?"}{' '}
                 <Box 
                   component="span" 
@@ -310,7 +329,7 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
 
           <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, opacity: 0.6 }}>
             <SparkleIcon sx={{ fontSize: 16, color: 'var(--cd-tertiary)' }} />
-            <Typography variant="caption" sx={{ color: 'var(--cd-text-secondary)', fontWeight: 500, letterSpacing: '0.05em' }}>
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500, letterSpacing: '0.05em' }}>
               POWERED BY GEMINI AI
             </Typography>
           </Box>
