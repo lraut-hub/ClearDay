@@ -13,7 +13,7 @@ const callApi = async (data: any): Promise<AIResponse> => {
         if (apiKey) {
             try {
                 const genAI = new GoogleGenerativeAI(apiKey);
-                const { history, prompt, systemInstruction, model: requestedModel, config: aiConfig } = data;
+                const { history, prompt, parts, systemInstruction, model: requestedModel, config: aiConfig } = data;
                 const model = genAI.getGenerativeModel({ 
                     model: requestedModel === "gemini-1.5-flash" ? "gemini-2.5-flash" : (requestedModel || "gemini-2.5-flash"),
                     systemInstruction: systemInstruction
@@ -25,10 +25,11 @@ const callApi = async (data: any): Promise<AIResponse> => {
                         history: history,
                         generationConfig: aiConfig
                     });
-                    result = await chat.sendMessage(prompt || "");
+                    result = await chat.sendMessage(parts || prompt || "");
                 } else {
+                    const messageParts = parts || [{ text: prompt }];
                     result = await model.generateContent({
-                        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                        contents: [{ role: 'user', parts: messageParts }],
                         generationConfig: aiConfig
                     });
                 }
@@ -87,7 +88,7 @@ const baseGenerateTasks = async (prompt: string, systemInstruction: string, imag
         }
 
         const response = await callApi({
-            prompt: prompt, // For simple prompt
+            parts: parts,
             systemInstruction: systemInstruction,
             model: model,
             config: {
@@ -156,8 +157,13 @@ Help the user flesh out their goal. Summarize key info and suggest next steps.`;
 export const brainstormWithAI = async (conversation: string, imageFile?: File): Promise<string> => {
     try {
         const model = imageFile ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
+        const parts: any[] = [{ text: conversation }];
+        if (imageFile) {
+            const imagePart = await fileToGenerativePart(imageFile);
+            parts.unshift(imagePart);
+        }
         const response = await callApi({
-            prompt: conversation,
+            parts: parts,
             systemInstruction: BRAINSTORM_SYSTEM_INSTRUCTION,
             model: model
         });

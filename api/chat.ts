@@ -11,7 +11,7 @@ export default async function handler(req: Request) {
   }
 
   try {
-    const { history, prompt, systemInstruction, model: requestedModel, config: aiConfig } = await req.json();
+    const { history, prompt, parts, systemInstruction, model: requestedModel, config: aiConfig } = await req.json();
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -31,10 +31,11 @@ export default async function handler(req: Request) {
             history: history,
             generationConfig: aiConfig
         });
-        result = await chat.sendMessage(prompt || "");
+        result = await chat.sendMessage(parts || prompt || "");
     } else {
+        const messageParts = parts || [{ text: prompt }];
         result = await model.generateContent({
-            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            contents: [{ role: 'user', parts: messageParts }],
             generationConfig: aiConfig
         });
     }
