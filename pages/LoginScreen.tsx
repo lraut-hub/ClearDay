@@ -75,7 +75,7 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
       });
       if (error) throw error;
     } catch (err: any) {
-      setError('Google sign-in is not enabled in your Supabase Auth settings yet. Please configure Google OAuth in Supabase.');
+      setError(err.message || 'Google sign-in failed. Please ensure Google OAuth is configured correctly in Supabase.');
     }
   };
 
@@ -179,6 +179,11 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
                     },
                     '& .MuiInputLabel-root': {
                       color: 'rgba(255,255,255,0.7)',
+                    },
+                    '& input:-webkit-autofill': {
+                      WebkitBoxShadow: '0 0 0 1000px #1A2632 inset !important',
+                      WebkitTextFillColor: '#FFFFFF !important',
+                      caretColor: '#FFFFFF',
                     }
                   }}
                 />
@@ -210,6 +215,11 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
                     },
                     '& .MuiIconButton-root': {
                       color: 'rgba(255,255,255,0.7)',
+                    },
+                    '& input:-webkit-autofill': {
+                      WebkitBoxShadow: '0 0 0 1000px #1A2632 inset !important',
+                      WebkitTextFillColor: '#FFFFFF !important',
+                      caretColor: '#FFFFFF',
                     }
                   }}
                 />
@@ -234,6 +244,11 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
                       },
                       '& .MuiIconButton-root': {
                         color: 'rgba(255,255,255,0.7)',
+                      },
+                      '& input:-webkit-autofill': {
+                        WebkitBoxShadow: '0 0 0 1000px #1A2632 inset !important',
+                        WebkitTextFillColor: '#FFFFFF !important',
+                        caretColor: '#FFFFFF',
                       }
                     }}
                   />
