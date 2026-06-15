@@ -256,8 +256,6 @@ export default function App() {
         py: 1,
       }}
       role="presentation"
-      onClick={() => setDrawerOpen(false)}
-      onKeyDown={() => setDrawerOpen(false)}
     >
       {/* Brand */}
       <Box sx={{ px: 2.5, py: 2, mb: 1 }}>
@@ -365,7 +363,15 @@ export default function App() {
           titleOverride={headerTitle}
           onBack={headerBackAction}
         />
-        <Drawer anchor="left" open={isDrawerOpen} onClose={() => setDrawerOpen(false)}>
+        <Drawer 
+          anchor="left" 
+          open={isDrawerOpen} 
+          onClose={() => setDrawerOpen(false)}
+          ModalProps={{
+            onBackdropClick: () => setDrawerOpen(false),
+            keepMounted: true, // Better open performance on mobile.
+          }}
+        >
             {drawerContent}
         </Drawer>
         <Container component="main" maxWidth="lg" sx={{ flexGrow: 1, py: { xs: 2, md: 4 }, px: { xs: 2, sm: 3, md: 4 } }}>

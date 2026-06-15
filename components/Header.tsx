@@ -37,6 +37,7 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onMenuClick,
         zIndex: 1000,
         borderRadius: 0,
         border: 'none',
+        color: 'text.primary',
       }}
     >
       <Toolbar sx={{ gap: 1, px: { xs: 1, sm: 2, md: 3 } }}>
