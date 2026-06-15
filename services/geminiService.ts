@@ -15,7 +15,7 @@ const callApi = async (data: any): Promise<AIResponse> => {
                 const genAI = new GoogleGenerativeAI(apiKey);
                 const { history, prompt, systemInstruction, model: requestedModel, config: aiConfig } = data;
                 const model = genAI.getGenerativeModel({ 
-                    model: requestedModel || "gemini-1.5-flash",
+                    model: requestedModel === "gemini-1.5-flash" ? "gemini-2.5-flash" : (requestedModel || "gemini-2.5-flash"),
                     systemInstruction: systemInstruction
                 });
 
@@ -77,7 +77,7 @@ const fileToGenerativePart = async (file: File) => {
 const baseGenerateTasks = async (prompt: string, systemInstruction: string, imageFile?: File): Promise<Omit<Task, 'id' | 'status'>[]> => {
     let jsonText: string | undefined;
     try {
-        const model = imageFile ? 'gemini-1.5-pro' : 'gemini-1.5-flash';
+        const model = imageFile ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
         
         const parts: any[] = [{ text: prompt }];
     
@@ -136,7 +136,7 @@ export const chatWithAI = async (history: any[]): Promise<AIResponse> => {
             history: history.slice(0, -1),
             prompt: prompt,
             systemInstruction: FUNCTION_CALLING_SYSTEM_INSTRUCTION,
-            model: 'gemini-1.5-flash'
+            model: 'gemini-2.5-flash'
         });
     } catch (error) {
         console.error("Error in AI chat:", error);
@@ -155,7 +155,7 @@ Help the user flesh out their goal. Summarize key info and suggest next steps.`;
 
 export const brainstormWithAI = async (conversation: string, imageFile?: File): Promise<string> => {
     try {
-        const model = imageFile ? 'gemini-1.5-pro' : 'gemini-1.5-flash';
+        const model = imageFile ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
         const response = await callApi({
             prompt: conversation,
             systemInstruction: BRAINSTORM_SYSTEM_INSTRUCTION,
@@ -191,7 +191,7 @@ export const reflectOnTasks = async (tasks: Task[]): Promise<string> => {
         const response = await callApi({
             prompt: `Here are the completed tasks: ${completedTaskTitles}`,
             systemInstruction: systemInstruction,
-            model: 'gemini-1.5-flash'
+            model: 'gemini-2.5-flash'
         });
 
         return response.text || "No reflection available.";
