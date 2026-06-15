@@ -367,6 +367,9 @@ export default function App() {
           anchor="left" 
           open={isDrawerOpen} 
           onClose={() => setDrawerOpen(false)}
+          PaperProps={{
+            sx: { borderRadius: 0 }
+          }}
           ModalProps={{
             onBackdropClick: () => setDrawerOpen(false),
             keepMounted: true, // Better open performance on mobile.

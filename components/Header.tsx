@@ -44,10 +44,10 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onMenuClick,
         {activePage === Page.Home ? (
           <IconButton
             edge="start"
-            color="inherit"
             aria-label="menu"
             onClick={onMenuClick}
             sx={{
+              color: 'text.primary',
               transition: 'all 200ms cubic-bezier(0.2, 0, 0, 1)',
               '&:hover': {
                 transform: 'scale(1.08)',
@@ -60,10 +60,10 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onMenuClick,
         ) : (
           <IconButton
             edge="start"
-            color="inherit"
             aria-label="back"
             onClick={handleBack}
             sx={{
+              color: 'text.primary',
               transition: 'all 200ms cubic-bezier(0.2, 0, 0, 1)',
               '&:hover': {
                 transform: 'translateX(-2px)',
@@ -102,9 +102,9 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onMenuClick,
         </Typography>
 
         <IconButton 
-          color="inherit" 
           onClick={() => setActivePage(Page.Settings)}
           sx={{
+            color: 'text.primary',
             transition: 'all 300ms cubic-bezier(0.2, 0, 0, 1)',
             '&:hover': {
               transform: 'rotate(45deg)',
