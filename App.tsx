@@ -18,6 +18,7 @@ import RescheduleTaskModal from './components/RescheduleTaskModal';
 import PWAInstallModal from './components/PWAInstallModal';
 import { useAuth } from './hooks/useAuth';
 import { syncService } from './services/syncService';
+import { reminderService } from './services/reminderService';
 import { ThemeProvider, CssBaseline, Container, Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Divider, Avatar, Typography as MuiTypography } from '@mui/material';
 import { Home as HomeIcon, Event as EventIcon, Timeline as TimelineIcon, Security as AdminIcon } from '@mui/icons-material';
 import { getTheme, theme as fallbackTheme } from './theme';
@@ -26,7 +27,15 @@ export default function App() {
   const [activePage, setActivePage] = useState<Page>(Page.Home);
   const [tasks, setTasks] = useLocalStorage<Task[]>('tasks', []);
   const [goals, setGoals] = useLocalStorage<Goal[]>('goals', []);
-  const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', { sound: 'default', vibration: 'default', theme: 'system' });
+  const [settings, setSettings] = useLocalStorage<AppSettings>('app-settings', { 
+    sound: 'default', 
+    vibration: 'default', 
+    theme: 'system',
+    activityRemindersEnabled: true,
+    activityReminderOffset: 15,
+    reflectionReminderEnabled: true,
+    reflectionTime: '20:00'
+  });
   const [isQuickAddTaskModalOpen, setQuickAddTaskModalOpen] = useState(false);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isRescheduleModalOpen, setRescheduleModalOpen] = useState(false);
@@ -69,6 +78,11 @@ export default function App() {
       return () => clearTimeout(timer);
     }
   }, [tasks, goals, user]);
+
+  // Sync tasks and settings with reminderService
+  React.useEffect(() => {
+    reminderService.init(tasks, settings);
+  }, [tasks, settings]);
 
   const handleAddTask = useCallback((newTaskData: Omit<Task, 'id' | 'status'>) => {
     const newTask: Task = {

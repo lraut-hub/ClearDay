@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, Box, Typography, Button, IconButton, Stack } from '@mui/material';
-import { Close as CloseIcon, GetApp as InstallIcon, TouchApp as TapIcon } from '@mui/icons-material';
+import { Close as CloseIcon, TouchApp as TapIcon, AddToHomeScreen as AddToHomeScreenIcon } from '@mui/icons-material';
 
 interface PWAInstallModalProps {
   userLoggedIn: boolean;
@@ -21,50 +20,109 @@ export default function PWAInstallModal({ userLoggedIn }: PWAInstallModalProps) 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setPromptEvent(e);
-      if (userLoggedIn && !localStorage.getItem('cd_pwa_dismissed')) {
-        setOpen(true);
-      }
+      checkAndShowPrompt();
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // If iOS and standalone not active, we can show a tip
-    if (isIOSDevice && !(window.navigator as any).standalone && userLoggedIn && !localStorage.getItem('cd_pwa_dismissed')) {
+    // Global event listener for manual trigger
+    const handleManualOpen = () => {
       setOpen(true);
+    };
+    window.addEventListener('open-pwa-modal', handleManualOpen);
+
+    // Initial check for iOS
+    if (isIOSDevice) {
+      checkAndShowPrompt();
     }
 
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('open-pwa-modal', handleManualOpen);
+    };
   }, [userLoggedIn]);
 
   useEffect(() => {
-    if (userLoggedIn && (promptEvent || (isIOS && !(window.navigator as any).standalone)) && !localStorage.getItem('cd_pwa_dismissed')) {
-      setOpen(true);
+    if (userLoggedIn) {
+      checkAndShowPrompt();
     }
   }, [userLoggedIn, promptEvent, isIOS]);
 
+  const checkAndShowPrompt = () => {
+    if (!userLoggedIn) return;
+
+    // Check if already in standalone mode
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    if (isStandalone) {
+      localStorage.setItem('addToHomeScreenPromptOptOut', 'true');
+      return;
+    }
+
+    const optOut = localStorage.getItem('addToHomeScreenPromptOptOut') === 'true';
+    if (optOut) return;
+
+    const dismissCount = parseInt(localStorage.getItem('addToHomeScreenDismissalCount') || '0', 10);
+    const lastDismissalStr = localStorage.getItem('addToHomeScreenLastDismissal');
+
+    if (lastDismissalStr) {
+      const lastDismissal = new Date(lastDismissalStr).getTime();
+      const now = new Date().getTime();
+      const daysSinceDismissal = (now - lastDismissal) / (1000 * 60 * 60 * 24);
+
+      if (dismissCount === 1 && daysSinceDismissal < 7) return;
+      if (dismissCount === 2 && daysSinceDismissal < 30) return;
+      if (dismissCount >= 3) return; // Stop after 3rd dismissal
+    }
+
+    // Mark as seen but not answered
+    localStorage.setItem('addToHomeScreenPromptSeen', 'true');
+    localStorage.setItem('addToHomeScreenPromptAnswered', 'false');
+
+    // Only open automatically if not already open
+    if ((promptEvent || isIOS) && !open) {
+      setOpen(true);
+    }
+  };
+
   const handleInstall = async () => {
+    localStorage.setItem('addToHomeScreenPromptAnswered', 'true');
+    
     if (promptEvent) {
       promptEvent.prompt();
       const { outcome } = await promptEvent.userChoice;
       if (outcome === 'accepted') {
-        localStorage.setItem('cd_pwa_dismissed', 'true');
+        localStorage.setItem('addToHomeScreenPromptOptOut', 'true');
         setOpen(false);
       }
     } else if (isIOS) {
-      // User has to manually add on iOS
-      alert("To install on iOS: Tap the Share button (square with arrow pointing up) at the bottom of Safari, then tap 'Add to Home Screen'.");
+      // Just close modal since they have to follow instructions
+      setOpen(false);
     }
   };
 
-  const handleDismiss = () => {
-    localStorage.setItem('cd_pwa_dismissed', 'true');
+  const handleNotNow = () => {
+    const dismissCount = parseInt(localStorage.getItem('addToHomeScreenDismissalCount') || '0', 10);
+    localStorage.setItem('addToHomeScreenDismissalCount', (dismissCount + 1).toString());
+    localStorage.setItem('addToHomeScreenLastDismissal', new Date().toISOString());
+    localStorage.setItem('addToHomeScreenPromptAnswered', 'true');
+    setOpen(false);
+  };
+
+  const handleDontShowAgain = () => {
+    localStorage.setItem('addToHomeScreenPromptOptOut', 'true');
+    localStorage.setItem('addToHomeScreenPromptAnswered', 'true');
+    setOpen(false);
+  };
+
+  const handleClose = () => {
+    // Treat as seen but not answered
     setOpen(false);
   };
 
   return (
     <Dialog 
       open={open} 
-      onClose={handleDismiss}
+      onClose={handleClose}
       PaperProps={{
         sx: {
           borderRadius: 'var(--cd-radius-lg)',
@@ -81,7 +139,7 @@ export default function PWAInstallModal({ userLoggedIn }: PWAInstallModalProps) 
       }}
     >
       <IconButton 
-        onClick={handleDismiss}
+        onClick={handleClose}
         sx={{ position: 'absolute', top: 12, right: 12, color: 'text.secondary' }}
       >
         <CloseIcon sx={{ fontSize: 20 }} />
@@ -102,15 +160,15 @@ export default function PWAInstallModal({ userLoggedIn }: PWAInstallModalProps) 
             boxShadow: '0 8px 24px rgba(91, 164, 207, 0.3)',
           }}
         >
-          <InstallIcon sx={{ fontSize: 32, color: 'white' }} />
+          <AddToHomeScreenIcon sx={{ fontSize: 32, color: 'white' }} />
         </Box>
 
         <Typography variant="h6" fontWeight={700} sx={{ fontFamily: "'DM Sans', sans-serif", mb: 1 }}>
-          Install ClearDay App
+          Keep ClearDay one tap away
         </Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary', mb: 3, lineHeight: 1.6 }}>
-          Add ClearDay directly to your phone's Home Screen for instant offline access and full-screen experience. <b style={{ color: 'var(--cd-primary)' }}>No app store installation needed!</b>
+          Add ClearDay to your Home Screen and App Menu for faster access and a smoother experience.
         </Typography>
 
         {isIOS && !promptEvent ? (
@@ -118,7 +176,9 @@ export default function PWAInstallModal({ userLoggedIn }: PWAInstallModalProps) 
             <Stack direction="row" spacing={1.5} alignItems="center">
               <TapIcon sx={{ color: 'var(--cd-primary)', fontSize: 24 }} />
               <Typography variant="caption" sx={{ color: 'text.primary', lineHeight: 1.4 }}>
-                <b>iOS Safari:</b> Tap the Share button below, then select <b>"Add to Home Screen"</b>.
+                1. Tap the <b>Share</b> button below.<br/>
+                2. Select <b>"Add to Home Screen"</b>.<br/>
+                3. Confirm.
               </Typography>
             </Stack>
           </Box>
@@ -141,11 +201,25 @@ export default function PWAInstallModal({ userLoggedIn }: PWAInstallModalProps) 
           <Button 
             variant="text" 
             fullWidth 
-            onClick={handleDismiss}
+            onClick={handleNotNow}
             sx={{ color: 'text.secondary', fontWeight: 500 }}
           >
-            Maybe Later
+            Not Now
           </Button>
+          <Typography 
+            variant="caption" 
+            onClick={handleDontShowAgain}
+            sx={{ 
+              color: 'text.disabled', 
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              display: 'inline-block',
+              mt: 1,
+              '&:hover': { color: 'text.secondary' } 
+            }}
+          >
+            Don't Show Again
+          </Typography>
         </Stack>
       </Box>
     </Dialog>

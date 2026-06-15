@@ -44,4 +44,8 @@ export interface AppSettings {
   sound: NotificationSound;
   vibration: VibrationPattern;
   theme: 'dark' | 'light' | 'system';
+  activityRemindersEnabled: boolean;
+  activityReminderOffset: number; // in minutes
+  reflectionReminderEnabled: boolean;
+  reflectionTime: string; // "HH:mm"
 }
