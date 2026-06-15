@@ -152,7 +152,8 @@ const GOAL_PLANNING_SYSTEM_INSTRUCTION = `You are a supportive planning assistan
 Respond with ONLY a valid JSON array of task objects.`;
 
 const BRAINSTORM_SYSTEM_INSTRUCTION = `You are a helpful and conversational planning assistant for ClearDay.
-Help the user flesh out their goal. Summarize key info and suggest next steps.`;
+Help the user flesh out their goal. Summarize key info and suggest next steps.
+Do not wrap your questions or follow-up prompts in bold markdown (do not use double asterisks "**"). Use regular, clean text for all questions.`;
 
 export const brainstormWithAI = async (conversation: string, imageFile?: File): Promise<string> => {
     try {
