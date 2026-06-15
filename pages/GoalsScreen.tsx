@@ -292,7 +292,23 @@ const GoalsScreen: React.FC<GoalsScreenProps> = ({ title, goals, tasks, addGoal,
                     <Paper sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1, borderRadius: 'var(--cd-radius-full)', bgcolor: 'var(--cd-bg-surface-high)', border: '1px solid var(--cd-outline)' }}>
                         <IconButton onClick={() => fileInputRef.current?.click()} color={wipGoal.imageFile ? 'primary' : 'default'} sx={{ flexShrink: 0 }}><AttachFileIcon /></IconButton>
                         <input type="file" accept="image/*" ref={fileInputRef} hidden onChange={handleFileChange} />
-                        <TextField fullWidth variant="standard" value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleUserMessageSubmit()} placeholder="Your thoughts..." InputProps={{ disableUnderline: true, sx: { fontSize: '0.95rem' } }} disabled={isLoading} />
+                        <TextField 
+                            fullWidth 
+                            variant="standard" 
+                            multiline
+                            maxRows={4}
+                            value={userInput} 
+                            onChange={(e) => setUserInput(e.target.value)} 
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleUserMessageSubmit();
+                                }
+                            }} 
+                            placeholder="Your thoughts..." 
+                            InputProps={{ disableUnderline: true, sx: { fontSize: '0.95rem' } }} 
+                            disabled={isLoading} 
+                        />
                         <IconButton onClick={handleUserMessageSubmit} disabled={isLoading || (!userInput.trim() && !wipGoal.imageFile)} sx={{ bgcolor: userInput.trim() ? 'primary.dark' : 'transparent', color: userInput.trim() ? 'primary.light' : 'text.disabled', flexShrink: 0, '&:hover': { bgcolor: 'primary.main', color: 'white' } }}><SendIcon sx={{ fontSize: '1.2rem' }} /></IconButton>
                     </Paper>
                 </Box>

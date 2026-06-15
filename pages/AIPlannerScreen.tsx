@@ -179,9 +179,16 @@ const AIPlannerScreen: React.FC<AIPlannerScreenProps> = ({ onAddTasks }) => {
         <TextField
           fullWidth
           variant="standard"
+          multiline
+          maxRows={4}
           value={userInput}
           onChange={(e) => setUserInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSendMessage();
+            }
+          }}
           placeholder="Add task 'Read chapter 5' for this Friday..."
           InputProps={{ 
             disableUnderline: true,
