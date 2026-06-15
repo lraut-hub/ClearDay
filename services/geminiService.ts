@@ -1,5 +1,5 @@
 
-import { Part } from "@google/generative-ai";
+import { Part, GoogleGenerativeAI } from "@google/generative-ai";
 import { Task } from '../types';
 
 export interface AIResponse {
@@ -8,6 +8,42 @@ export interface AIResponse {
 }
 
 const callApi = async (data: any): Promise<AIResponse> => {
+    if (import.meta.env.DEV) {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (apiKey) {
+            try {
+                const genAI = new GoogleGenerativeAI(apiKey);
+                const { history, prompt, systemInstruction, model: requestedModel, config: aiConfig } = data;
+                const model = genAI.getGenerativeModel({ 
+                    model: requestedModel || "gemini-1.5-flash",
+                    systemInstruction: systemInstruction
+                });
+
+                let result;
+                if (history && history.length > 0) {
+                    const chat = model.startChat({
+                        history: history,
+                        generationConfig: aiConfig
+                    });
+                    result = await chat.sendMessage(prompt || "");
+                } else {
+                    result = await model.generateContent({
+                        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                        generationConfig: aiConfig
+                    });
+                }
+
+                const response = await result.response;
+                return {
+                    text: response.text(),
+                    functionCalls: response.functionCalls()
+                };
+            } catch (err: any) {
+                console.error("Local client-side Gemini call failed, falling back to /api/chat:", err);
+            }
+        }
+    }
+
     const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
