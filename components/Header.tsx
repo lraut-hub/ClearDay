@@ -27,14 +27,16 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onMenuClick,
   
   return (
     <AppBar 
-      position="absolute" 
-      color="transparent" 
+      position="sticky" 
       elevation={0}
       sx={{ 
+        top: 0,
         boxShadow: 'none', 
         borderBottom: 'none', 
         backgroundImage: 'none',
         zIndex: 1000,
+        borderRadius: 0,
+        border: 'none',
       }}
     >
       <Toolbar sx={{ gap: 1, px: { xs: 1, sm: 2, md: 3 } }}>
