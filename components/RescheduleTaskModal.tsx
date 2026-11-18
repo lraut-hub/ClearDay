@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { Task } from '../types';
 import { Modal, Box, Typography, TextField, Button, Stack } from '@mui/material';
+import { DeleteOutline as DeleteOutlineIcon } from '@mui/icons-material';
 
 interface RescheduleTaskModalProps {
   open: boolean;
   onClose: () => void;
   onReschedule: (taskId: string, newDueDate: string, newDueTime?: string) => void;
+  onDelete?: (taskId: string) => void;
   task: Task | null;
 }
 
@@ -27,7 +29,7 @@ const modalStyle = {
   animation: 'scaleInCentered 300ms cubic-bezier(0.05, 0.7, 0.1, 1) both',
 };
 
-const RescheduleTaskModal: React.FC<RescheduleTaskModalProps> = ({ open, onClose, onReschedule, task }) => {
+const RescheduleTaskModal: React.FC<RescheduleTaskModalProps> = ({ open, onClose, onReschedule, onDelete, task }) => {
   const [newDueDate, setNewDueDate] = useState('');
   const [newDueTime, setNewDueTime] = useState('');
 
@@ -95,9 +97,21 @@ const RescheduleTaskModal: React.FC<RescheduleTaskModalProps> = ({ open, onClose
               onChange={(e) => setNewDueTime(e.target.value)}
               InputLabelProps={{ shrink: true }}
             />
-            <Stack direction="row" spacing={1.5} justifyContent="flex-end" sx={{ pt: 1 }}>
-              <Button onClick={onClose} sx={{ color: 'text.secondary' }}>Cancel</Button>
-              <Button type="submit" variant="contained">Save Changes</Button>
+            <Stack direction="row" spacing={1.5} justifyContent="space-between" alignItems="center" sx={{ pt: 1 }}>
+              {onDelete ? (
+                <Button 
+                  color="error" 
+                  onClick={() => { onDelete(task.id); onClose(); }}
+                  startIcon={<DeleteOutlineIcon />}
+                  sx={{ textTransform: 'none' }}
+                >
+                  Delete
+                </Button>
+              ) : <Box />}
+              <Stack direction="row" spacing={1.5}>
+                <Button onClick={onClose} sx={{ color: 'text.secondary' }}>Cancel</Button>
+                <Button type="submit" variant="contained">Save Changes</Button>
+              </Stack>
             </Stack>
           </Stack>
         </form>

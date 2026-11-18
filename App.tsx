@@ -20,7 +20,15 @@ import { useAuth } from './hooks/useAuth';
 import { syncService } from './services/syncService';
 import { reminderService } from './services/reminderService';
 import { ThemeProvider, CssBaseline, Container, Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Divider, Avatar, Typography as MuiTypography } from '@mui/material';
-import { Home as HomeIcon, Event as EventIcon, Timeline as TimelineIcon, Security as AdminIcon } from '@mui/icons-material';
+import { 
+  Home as HomeIcon, 
+  Event as EventIcon, 
+  Timeline as TimelineIcon, 
+  Security as AdminIcon,
+  AutoAwesome as AutoAwesomeIcon,
+  AddPhotoAlternate as AddPhotoAlternateIcon,
+  TrackChanges as TrackChangesIcon
+} from '@mui/icons-material';
 import { getTheme, theme as fallbackTheme } from './theme';
 
 export default function App() {
@@ -188,13 +196,13 @@ export default function App() {
   const renderPage = () => {
     switch (activePage) {
       case Page.Home:
-        return <HomeScreen tasks={sortedTasks} setActivePage={setActivePage} toggleTaskCompletion={toggleTaskCompletion} onAddTaskClick={() => setQuickAddTaskModalOpen(true)} onRescheduleTask={handleOpenRescheduleModal} />;
+        return <HomeScreen tasks={sortedTasks} setActivePage={setActivePage} toggleTaskCompletion={toggleTaskCompletion} onAddTaskClick={() => setQuickAddTaskModalOpen(true)} onRescheduleTask={handleOpenRescheduleModal} deleteTask={deleteTask} />;
       case Page.Planner:
         return <AIPlannerScreen onAddTasks={handleAddStandaloneTasks} />;
       case Page.ImageAnalysis:
         return <ImageAnalysisScreen onAddTasks={handleAddStandaloneTasks} setActivePage={setActivePage} />;
       case Page.Schedule:
-        return <CalendarScreen tasks={sortedTasks} onRescheduleTask={handleOpenRescheduleModal} toggleTaskCompletion={toggleTaskCompletion} />;
+        return <CalendarScreen tasks={sortedTasks} onRescheduleTask={handleOpenRescheduleModal} toggleTaskCompletion={toggleTaskCompletion} onDeleteTask={deleteTask} />;
       case Page.Goals:
         return <GoalsScreen 
                   title="My Goals"
@@ -232,13 +240,16 @@ export default function App() {
         }
         return <AdminConsole />;
       default:
-        return <HomeScreen tasks={sortedTasks} setActivePage={setActivePage} toggleTaskCompletion={toggleTaskCompletion} onAddTaskClick={() => setQuickAddTaskModalOpen(true)} onRescheduleTask={handleOpenRescheduleModal} />;
+        return <HomeScreen tasks={sortedTasks} setActivePage={setActivePage} toggleTaskCompletion={toggleTaskCompletion} onAddTaskClick={() => setQuickAddTaskModalOpen(true)} onRescheduleTask={handleOpenRescheduleModal} deleteTask={deleteTask} />;
     }
   };
 
   const navItems = [
     { icon: <HomeIcon />, label: 'Home', page: Page.Home },
     { icon: <EventIcon />, label: 'Calendar', page: Page.Schedule },
+    { icon: <TrackChangesIcon />, label: 'My Goals', page: Page.Goals },
+    { icon: <AutoAwesomeIcon />, label: 'AI Planner', page: Page.Planner },
+    { icon: <AddPhotoAlternateIcon />, label: 'Image Analysis', page: Page.ImageAnalysis },
     { icon: <TimelineIcon />, label: 'Progress', page: Page.Progress },
   ];
 
@@ -391,6 +402,7 @@ export default function App() {
           open={isRescheduleModalOpen}
           onClose={() => { setRescheduleModalOpen(false); setTaskToReschedule(null); }}
           onReschedule={handleRescheduleTask}
+          onDelete={deleteTask}
           task={taskToReschedule}
         />
         <PWAInstallModal userLoggedIn={!!currentUser} />

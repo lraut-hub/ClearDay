@@ -2,12 +2,13 @@
 import React, { useState, useRef } from 'react';
 import { Task } from '../types';
 import { Card, CardContent, Checkbox, Typography, Box, Chip, IconButton } from '@mui/material';
-import { Notifications as NotificationsIcon, EditCalendar as EditCalendarIcon } from '@mui/icons-material';
+import { Notifications as NotificationsIcon, EditCalendar as EditCalendarIcon, DeleteOutline as DeleteOutlineIcon } from '@mui/icons-material';
 
 interface TaskItemProps {
   task: Task;
   onToggle: (id: string) => void;
   onReschedule: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 const priorityConfig = {
@@ -56,7 +57,7 @@ const Confetti = ({ active }: { active: boolean }) => {
   return <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>{particles}</Box>;
 };
 
-const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onReschedule }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onReschedule, onDelete }) => {
   const { id, title, description, dueDate, dueTime, status, reminderTime, priority } = task;
   const isCompleted = status === 'completed';
 
@@ -252,20 +253,36 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onToggle, onReschedule }) => 
               </Typography>
             )}
             {!isCompleted && (
-              <IconButton 
-                  size="small" 
-                  onClick={() => onReschedule(id)} 
-                  aria-label="reschedule task"
-                  sx={{ 
-                    mt: 'auto',
-                    color: 'text.disabled',
-                    '&:hover': {
-                      color: 'primary.main',
-                    },
-                  }}
-              >
-                  <EditCalendarIcon sx={{ fontSize: '1.1rem' }} />
-              </IconButton>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 'auto' }}>
+                {onDelete && (
+                  <IconButton 
+                      size="small" 
+                      onClick={(e) => { e.stopPropagation(); onDelete(id); }} 
+                      aria-label="delete task"
+                      sx={{ 
+                        color: 'text.disabled',
+                        '&:hover': {
+                          color: 'error.main',
+                        },
+                      }}
+                  >
+                      <DeleteOutlineIcon sx={{ fontSize: '1.1rem' }} />
+                  </IconButton>
+                )}
+                <IconButton 
+                    size="small" 
+                    onClick={() => onReschedule(id)} 
+                    aria-label="reschedule task"
+                    sx={{ 
+                      color: 'text.disabled',
+                      '&:hover': {
+                        color: 'primary.main',
+                      },
+                    }}
+                >
+                    <EditCalendarIcon sx={{ fontSize: '1.1rem' }} />
+                </IconButton>
+              </Box>
             )}
         </Box>
       </CardContent>

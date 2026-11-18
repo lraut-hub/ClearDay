@@ -8,7 +8,8 @@ import {
   TrackChanges as TrackChangesIcon, 
   PlaylistAddCheck as PlaylistAddCheckIcon, 
   AutoAwesome as AutoAwesomeIcon, 
-  AddCircleOutline as AddCircleOutlineIcon 
+  AddCircleOutline as AddCircleOutlineIcon,
+  AddPhotoAlternate as AddPhotoAlternateIcon
 } from '@mui/icons-material';
 
 interface HomeScreenProps {
@@ -17,6 +18,7 @@ interface HomeScreenProps {
   toggleTaskCompletion: (id: string) => void;
   onAddTaskClick: () => void;
   onRescheduleTask: (id: string) => void;
+  deleteTask: (id: string) => void;
 }
 
 const CalmState: React.FC = () => (
@@ -52,11 +54,13 @@ const CalmState: React.FC = () => (
 );
 
 const actions = [
+  { icon: <AutoAwesomeIcon />, name: 'AI Planner', page: Page.Planner },
+  { icon: <AddPhotoAlternateIcon />, name: 'Analyze Image', page: Page.ImageAnalysis },
   { icon: <PlaylistAddCheckIcon />, name: 'Set Goals', page: Page.AddGoal },
   { icon: <TrackChangesIcon />, name: 'My Goals', page: Page.Goals },
 ];
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ tasks, setActivePage, toggleTaskCompletion, onAddTaskClick, onRescheduleTask }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ tasks, setActivePage, toggleTaskCompletion, onAddTaskClick, onRescheduleTask, deleteTask }) => {
   const today = new Date();
   const todayISO = today.toISOString().split('T')[0];
   const todayTasks = tasks.filter(task => task.dueDate === todayISO && task.status === 'pending');
@@ -137,7 +141,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ tasks, setActivePage, toggleTas
         {todayTasks.length > 0 ? (
             todayTasks.map((task, index) => (
                 <Box key={task.id} className={`cd-animate-in cd-stagger-${Math.min(index + 2, 5)}`}>
-                  <TaskItem task={task} onToggle={toggleTaskCompletion} onReschedule={onRescheduleTask} />
+                  <TaskItem task={task} onToggle={toggleTaskCompletion} onReschedule={onRescheduleTask} onDelete={deleteTask} />
                 </Box>
             ))
         ) : (

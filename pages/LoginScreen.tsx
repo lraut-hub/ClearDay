@@ -58,7 +58,11 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
         setMessage('Verification link sent! Please check your email. (Tip: If on mobile, open the link in Chrome or Safari to return directly to your app session).');
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
+      if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError') || err.message?.includes('network')) {
+        setError('Cloud authentication service is currently unreachable. You can access all app features seamlessly by clicking "Continue as Guest (Offline Mode)" below.');
+      } else {
+        setError(err.message || 'An error occurred');
+      }
     } finally {
       setLoading(false);
     }
@@ -67,15 +71,25 @@ export default function LoginScreen({ onContinueAsGuest }: { onContinueAsGuest: 
   const handleGoogleLogin = async () => {
     setError(null);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: window.location.origin,
+          skipBrowserRedirect: true,
         }
       });
       if (error) throw error;
+      if (data?.url) {
+        // Pre-flight check before navigating away to protect user session from DNS / network crashes
+        try {
+          await fetch(data.url, { method: 'HEAD', mode: 'no-cors' });
+          window.location.href = data.url;
+        } catch {
+          throw new Error('Cloud authentication server is currently unreachable. Please use "Continue as Guest (Offline Mode)" below.');
+        }
+      }
     } catch (err: any) {
-      setError(err.message || 'Google sign-in failed. Please ensure Google OAuth is configured correctly in Supabase.');
+      setError(err.message || 'Google sign-in is currently unavailable. Please continue as Guest below.');
     }
   };
 

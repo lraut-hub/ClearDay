@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Task, TaskPriority } from '../types';
-import { Modal, Box, Typography, TextField, Button, Stack, Chip, IconButton } from '@mui/material';
+import { Modal, Box, Typography, TextField, Button, Stack, Chip, IconButton, Tooltip } from '@mui/material';
 import { AccessTime as AccessTimeIcon, Event as EventIcon, Close as CloseIcon, Star as StarIcon } from '@mui/icons-material';
 
 interface QuickAddTaskModalProps {
@@ -150,9 +150,10 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
                         onClick={() => selectDateShortcut('today')}
                         sx={{
                           cursor: 'pointer',
-                          bgcolor: activeDateShortcut === 'today' ? '#e8f0fe' : 'transparent',
-                          color: activeDateShortcut === 'today' ? '#1a73e8' : 'text.secondary',
-                          '&:hover': { bgcolor: '#f1f3f4' },
+                          bgcolor: activeDateShortcut === 'today' ? 'primary.main' : 'action.hover',
+                          color: activeDateShortcut === 'today' ? 'primary.contrastText' : 'text.secondary',
+                          fontWeight: activeDateShortcut === 'today' ? 600 : 400,
+                          '&:hover': { bgcolor: activeDateShortcut === 'today' ? 'primary.dark' : 'action.selected' },
                         }}
                       />
                       <Chip 
@@ -161,9 +162,10 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
                         onClick={() => selectDateShortcut('tomorrow')}
                         sx={{
                           cursor: 'pointer',
-                          bgcolor: activeDateShortcut === 'tomorrow' ? '#e8f0fe' : 'transparent',
-                          color: activeDateShortcut === 'tomorrow' ? '#1a73e8' : 'text.secondary',
-                          '&:hover': { bgcolor: '#f1f3f4' },
+                          bgcolor: activeDateShortcut === 'tomorrow' ? 'primary.main' : 'action.hover',
+                          color: activeDateShortcut === 'tomorrow' ? 'primary.contrastText' : 'text.secondary',
+                          fontWeight: activeDateShortcut === 'tomorrow' ? 600 : 400,
+                          '&:hover': { bgcolor: activeDateShortcut === 'tomorrow' ? 'primary.dark' : 'action.selected' },
                         }}
                       />
                   </Stack>
@@ -190,31 +192,50 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
               </Box>
               
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
-                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                    <IconButton 
-                      onClick={() => setPriority(priority === 'high' ? null : 'high')} 
-                      sx={{ p: 0.5, transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' } }}
-                    >
-                      <StarIcon sx={{ 
-                        color: 'error.main', 
-                        fontSize: '2rem', 
-                        filter: priority === 'high' ? 'drop-shadow(0 0 12px rgba(224,108,108,0.8))' : 'none',
-                        opacity: priority === 'high' || priority === null ? 1 : 0.4,
-                        transition: 'all 0.2s'
-                      }} />
-                    </IconButton>
-                    <IconButton 
-                      onClick={() => setPriority(priority === 'medium' ? null : 'medium')} 
-                      sx={{ p: 0.5, transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' } }}
-                    >
-                      <StarIcon sx={{ 
-                        color: 'warning.main', 
-                        fontSize: '2rem', 
-                        filter: priority === 'medium' ? 'drop-shadow(0 0 12px rgba(212,167,106,0.8))' : 'none',
-                        opacity: priority === 'medium' || priority === null ? 1 : 0.4,
-                        transition: 'all 0.2s'
-                      }} />
-                    </IconButton>
+                  <Typography variant="caption" color="text.secondary" sx={{ minWidth: 50 }}>Priority:</Typography>
+                  <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                    <Tooltip title="High Priority">
+                      <IconButton 
+                        onClick={() => setPriority(priority === 'high' ? null : 'high')} 
+                        sx={{ p: 0.5, transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' } }}
+                      >
+                        <StarIcon sx={{ 
+                          color: 'error.main', 
+                          fontSize: '1.8rem', 
+                          filter: priority === 'high' ? 'drop-shadow(0 0 8px rgba(224,108,108,0.8))' : 'none',
+                          opacity: priority === 'high' ? 1 : 0.35,
+                          transition: 'all 0.2s'
+                        }} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Medium Priority">
+                      <IconButton 
+                        onClick={() => setPriority(priority === 'medium' ? null : 'medium')} 
+                        sx={{ p: 0.5, transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' } }}
+                      >
+                        <StarIcon sx={{ 
+                          color: 'warning.main', 
+                          fontSize: '1.8rem', 
+                          filter: priority === 'medium' ? 'drop-shadow(0 0 8px rgba(212,167,106,0.8))' : 'none',
+                          opacity: priority === 'medium' ? 1 : 0.35,
+                          transition: 'all 0.2s'
+                        }} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Low Priority">
+                      <IconButton 
+                        onClick={() => setPriority(priority === 'low' ? null : 'low')} 
+                        sx={{ p: 0.5, transition: 'transform 0.2s', '&:hover': { transform: 'scale(1.1)' } }}
+                      >
+                        <StarIcon sx={{ 
+                          color: 'info.main', 
+                          fontSize: '1.8rem', 
+                          filter: priority === 'low' ? 'drop-shadow(0 0 8px rgba(91,164,207,0.8))' : 'none',
+                          opacity: priority === 'low' ? 1 : 0.35,
+                          transition: 'all 0.2s'
+                        }} />
+                      </IconButton>
+                    </Tooltip>
                   </Box>
               </Box>
             </Stack>

@@ -19,8 +19,11 @@ export default async function handler(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
+    const resolvedModel = (!requestedModel || requestedModel.includes('1.5') || requestedModel.includes('2.5') || requestedModel === 'gemini-pro')
+      ? "gemini-3.8-flash"
+      : requestedModel;
     const model = genAI.getGenerativeModel({ 
-        model: requestedModel === "gemini-1.5-flash" ? "gemini-2.5-flash" : (requestedModel || "gemini-2.5-flash"),
+        model: resolvedModel,
         systemInstruction: systemInstruction
     });
 

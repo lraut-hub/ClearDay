@@ -9,6 +9,7 @@ interface TimelineViewProps {
   tasks: Task[];
   toggleTaskCompletion: (id: string) => void;
   onRescheduleTask: (id: string) => void;
+  onDeleteTask?: (id: string) => void;
 }
 
 const PIXELS_PER_MINUTE = 2;
@@ -32,7 +33,7 @@ const minutesToTime = (minutes: number): string => {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 };
 
-const TimelineView: React.FC<TimelineViewProps> = ({ selectedDate, tasks, toggleTaskCompletion, onRescheduleTask }) => {
+const TimelineView: React.FC<TimelineViewProps> = ({ selectedDate, tasks, toggleTaskCompletion, onRescheduleTask, onDeleteTask }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   
   const tasksForDay = tasks
@@ -116,6 +117,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedDate, tasks, toggle
             <Paper 
               key={task.id} 
               elevation={0}
+              onClick={() => onRescheduleTask(task.id)}
               sx={{
                 position: 'absolute',
                 top,
@@ -158,6 +160,7 @@ const TimelineView: React.FC<TimelineViewProps> = ({ selectedDate, tasks, toggle
               </Box>
               <Checkbox 
                 checked={isCompleted}
+                onClick={(e) => e.stopPropagation()}
                 onChange={() => toggleTaskCompletion(task.id)}
                 sx={{ 
                   color: isCompleted ? 'text.disabled' : 'primary.light', 

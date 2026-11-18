@@ -44,7 +44,10 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ settings, setSettings }
 
   const testVibration = () => {
     if (navigator.vibrate) {
-      navigator.vibrate([100, 50, 100]);
+      if (settings.vibration === 'short') navigator.vibrate(100);
+      else if (settings.vibration === 'long') navigator.vibrate([200, 100, 200]);
+      else if (settings.vibration === 'none') return;
+      else navigator.vibrate([100, 50, 100]);
     }
   };
 
@@ -197,7 +200,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ settings, setSettings }
               <InputLabel>Vibration Pattern</InputLabel>
               <Select value={settings.vibration || 'default'} label="Vibration Pattern" onChange={handleVibrationChange}>
                 <MenuItem value="default">Default</MenuItem>
-                <MenuItem value="strong">Strong</MenuItem>
+                <MenuItem value="short">Short</MenuItem>
+                <MenuItem value="long">Long</MenuItem>
                 <MenuItem value="none">Off</MenuItem>
               </Select>
             </FormControl>

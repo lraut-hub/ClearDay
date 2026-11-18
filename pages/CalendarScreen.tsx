@@ -11,9 +11,10 @@ interface CalendarScreenProps {
   tasks: Task[];
   toggleTaskCompletion: (id: string) => void;
   onRescheduleTask: (id: string) => void;
+  onDeleteTask?: (id: string) => void;
 }
 
-const CalendarScreen: React.FC<CalendarScreenProps> = ({ tasks, toggleTaskCompletion, onRescheduleTask }) => {
+const CalendarScreen: React.FC<CalendarScreenProps> = ({ tasks, toggleTaskCompletion, onRescheduleTask, onDeleteTask }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isPickerOpen, setPickerOpen] = useState(false);
@@ -181,12 +182,13 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ tasks, toggleTaskComple
       </Box>
 
       <Box sx={{ flexGrow: 1, overflow: 'hidden', minHeight: 0 }}>
-           <TimelineView
+            <TimelineView
               selectedDate={selectedDate}
               tasks={tasks}
               toggleTaskCompletion={toggleTaskCompletion}
               onRescheduleTask={onRescheduleTask}
-           />
+              onDeleteTask={onDeleteTask}
+            />
       </Box>
 
       <CalendarPickerModal

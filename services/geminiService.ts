@@ -14,8 +14,11 @@ const callApi = async (data: any): Promise<AIResponse> => {
             try {
                 const genAI = new GoogleGenerativeAI(apiKey);
                 const { history, prompt, parts, systemInstruction, model: requestedModel, config: aiConfig } = data;
+                const resolvedModel = (!requestedModel || requestedModel.includes('1.5') || requestedModel.includes('2.5') || requestedModel === 'gemini-pro')
+                    ? "gemini-3.8-flash"
+                    : requestedModel;
                 const model = genAI.getGenerativeModel({ 
-                    model: requestedModel === "gemini-1.5-flash" ? "gemini-2.5-flash" : (requestedModel || "gemini-2.5-flash"),
+                    model: resolvedModel,
                     systemInstruction: systemInstruction
                 });
 
@@ -78,7 +81,7 @@ const fileToGenerativePart = async (file: File) => {
 const baseGenerateTasks = async (prompt: string, systemInstruction: string, imageFile?: File): Promise<Omit<Task, 'id' | 'status'>[]> => {
     let jsonText: string | undefined;
     try {
-        const model = imageFile ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
+        const model = 'gemini-3.8-flash';
         
         const parts: any[] = [{ text: prompt }];
     
@@ -137,7 +140,7 @@ export const chatWithAI = async (history: any[]): Promise<AIResponse> => {
             history: history.slice(0, -1),
             prompt: prompt,
             systemInstruction: FUNCTION_CALLING_SYSTEM_INSTRUCTION,
-            model: 'gemini-2.5-flash'
+            model: 'gemini-3.8-flash'
         });
     } catch (error) {
         console.error("Error in AI chat:", error);
@@ -157,7 +160,7 @@ Do not wrap your questions or follow-up prompts in bold markdown (do not use dou
 
 export const brainstormWithAI = async (conversation: string, imageFile?: File): Promise<string> => {
     try {
-        const model = imageFile ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
+        const model = 'gemini-3.8-flash';
         const parts: any[] = [{ text: conversation }];
         if (imageFile) {
             const imagePart = await fileToGenerativePart(imageFile);
@@ -198,7 +201,7 @@ export const reflectOnTasks = async (tasks: Task[]): Promise<string> => {
         const response = await callApi({
             prompt: `Here are the completed tasks: ${completedTaskTitles}`,
             systemInstruction: systemInstruction,
-            model: 'gemini-2.5-flash'
+            model: 'gemini-3.8-flash'
         });
 
         return response.text || "No reflection available.";
