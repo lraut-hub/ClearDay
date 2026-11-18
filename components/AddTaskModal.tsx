@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Task, TaskPriority } from '../types';
-import { Modal, Box, Typography, TextField, Button, Stack, Chip, IconButton, Tooltip } from '@mui/material';
-import { AccessTime as AccessTimeIcon, Event as EventIcon, Close as CloseIcon, Star as StarIcon } from '@mui/icons-material';
+import { Modal, Box, Typography, TextField, Button, Stack, Chip, IconButton, Tooltip, Switch, FormControlLabel, FormControl, Select, MenuItem } from '@mui/material';
+import { AccessTime as AccessTimeIcon, Event as EventIcon, Close as CloseIcon, Star as StarIcon, NotificationsActive as NotificationsActiveIcon } from '@mui/icons-material';
 
 interface QuickAddTaskModalProps {
   open: boolean;
@@ -44,6 +44,7 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
   const [dueDate, setDueDate] = useState(getToday());
   const [activeDateShortcut, setActiveDateShortcut] = useState<'today' | 'tomorrow' | null>('today');
   const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [reminderOffset, setReminderOffset] = useState(15);
   const [priority, setPriority] = useState<TaskPriority | null>(null);
 
   useEffect(() => {
@@ -53,6 +54,7 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
       setDueDate(getToday());
       setActiveDateShortcut('today');
       setReminderEnabled(false);
+      setReminderOffset(15);
       setPriority(null);
     }
   }, [open]);
@@ -83,11 +85,23 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
     e.preventDefault();
     if (!title.trim()) return;
 
+    const computedReminderTime = (() => {
+      if (!reminderEnabled || !dueTime) return undefined;
+      if (reminderOffset === 0) return dueTime;
+      const [h, m] = dueTime.split(':').map(Number);
+      const totalMins = h * 60 + m - reminderOffset;
+      if (totalMins < 0) return dueTime; // fallback
+      const rh = Math.floor(totalMins / 60);
+      const rm = totalMins % 60;
+      return `${rh.toString().padStart(2,'0')}:${rm.toString().padStart(2,'0')}`;
+    })();
+
     onAddTask({
       title,
-      dueDate: dueDate,
+      dueDate,
       dueTime: dueTime || undefined,
-      reminderTime: reminderEnabled && dueTime ? dueTime : undefined,
+      reminderTime: computedReminderTime,
+      reminderOffsetMinutes: reminderEnabled ? reminderOffset : undefined,
       priority: priority || undefined,
     });
     onClose();
@@ -189,6 +203,39 @@ const QuickAddTaskModal: React.FC<QuickAddTaskModalProps> = ({ open, onClose, on
                         } 
                     }}
                   />
+              </Box>
+
+              {/* Remind Me row */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <NotificationsActiveIcon color={reminderEnabled ? 'primary' : 'action'} />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      size="small"
+                      checked={reminderEnabled}
+                      onChange={(e) => setReminderEnabled(e.target.checked)}
+                      color="primary"
+                    />
+                  }
+                  label={<Typography variant="body2" color={reminderEnabled ? 'text.primary' : 'text.secondary'}>Remind me</Typography>}
+                />
+                {reminderEnabled && (
+                  <FormControl size="small" sx={{ minWidth: 130 }}>
+                    <Select
+                      value={reminderOffset}
+                      onChange={(e) => setReminderOffset(Number(e.target.value))}
+                      variant="standard"
+                      disableUnderline
+                      sx={{ fontSize: '0.875rem' }}
+                    >
+                      <MenuItem value={5}>5 min before</MenuItem>
+                      <MenuItem value={15}>15 min before</MenuItem>
+                      <MenuItem value={30}>30 min before</MenuItem>
+                      <MenuItem value={60}>1 hour before</MenuItem>
+                      <MenuItem value={0}>At exact time</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
               </Box>
               
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AppSettings } from '../types';
-import { Typography, Box, Card, CardContent, FormControl, Select, MenuItem, InputLabel, IconButton, Button, SelectChangeEvent, Divider, ToggleButtonGroup, ToggleButton, Switch, Alert, Stack, TextField } from '@mui/material';
+import { Typography, Box, Card, CardContent, FormControl, Select, MenuItem, InputLabel, IconButton, Button, SelectChangeEvent, Divider, ToggleButtonGroup, ToggleButton, Switch, Alert, Stack, TextField, FormControlLabel } from '@mui/material';
 import { PlayArrow as PlayArrowIcon, Vibration as VibrationIcon, InfoOutlined as InfoOutlinedIcon, DarkModeOutlined as DarkModeIcon, LightModeOutlined as LightModeIcon, SettingsBrightnessOutlined as SystemModeIcon, AddToHomeScreen as AddToHomeScreenIcon, NotificationsActive as RemindersIcon } from '@mui/icons-material';
 
 interface SettingsScreenProps {
@@ -34,12 +34,44 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ settings, setSettings }
     }
   };
 
-  const testSound = () => {
+  const playTestSound = () => {
     try {
-      const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-      audio.volume = 0.5;
-      audio.play();
-    } catch (e) { console.error("Could not play test sound."); }
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const gainNode = ctx.createGain();
+      gainNode.gain.setValueAtTime(0.4, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+      gainNode.connect(ctx.destination);
+
+      const playTone = (freq: number, startTime: number, duration: number) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, startTime);
+        osc.connect(gainNode);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      };
+
+      if (settings.sound === 'alarm') {
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.5, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        g.connect(ctx.destination);
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.connect(g);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.8);
+      } else if (settings.sound === 'none') {
+        // silent
+      } else {
+        // default / chime: C5 → E5
+        playTone(523, ctx.currentTime, 0.6);
+        playTone(659, ctx.currentTime + 0.6, 0.6);
+      }
+    } catch (e) { console.error('Could not play test sound.', e); }
   };
 
   const testVibration = () => {
@@ -176,7 +208,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ settings, setSettings }
         </CardContent>
       </Card>
 
-      {/* Notifications Sounds/Vibration */}
+      {/* Notification Alerts */}
       <Card sx={{ mb: 2.5 }}>
         <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           <Typography variant="h5" component="h2" sx={{ fontFamily: "'DM Sans', sans-serif" }}>Notification Alerts</Typography>
@@ -187,10 +219,11 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ settings, setSettings }
               <Select value={settings.sound || 'default'} label="Reminder Sound" onChange={handleSoundChange}>
                 <MenuItem value="default">Default</MenuItem>
                 <MenuItem value="chime">Chime</MenuItem>
+                <MenuItem value="alarm">Alarm</MenuItem>
                 <MenuItem value="none">Silent</MenuItem>
               </Select>
             </FormControl>
-            <IconButton onClick={testSound} aria-label="Test sound" sx={{ bgcolor: 'rgba(91, 164, 207, 0.08)', '&:hover': { bgcolor: 'rgba(91, 164, 207, 0.15)' } }}>
+            <IconButton onClick={playTestSound} aria-label="Test sound" sx={{ bgcolor: 'rgba(91, 164, 207, 0.08)', '&:hover': { bgcolor: 'rgba(91, 164, 207, 0.15)' } }}>
               <PlayArrowIcon />
             </IconButton>
           </Box>
@@ -209,6 +242,116 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ settings, setSettings }
               <VibrationIcon />
             </IconButton>
           </Box>
+        </CardContent>
+      </Card>
+
+      {/* Reminder Defaults */}
+      <Card sx={{ mb: 2.5 }}>
+        <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+          <Typography variant="h5" component="h2" sx={{ fontFamily: "'DM Sans', sans-serif" }}>Reminder Defaults</Typography>
+
+          {/* Default reminder offset */}
+          <FormControl fullWidth size="small">
+            <InputLabel>Default Reminder Offset</InputLabel>
+            <Select
+              value={String(settings.activityReminderOffset)}
+              label="Default Reminder Offset"
+              onChange={(e) => setSettings({ ...settings, activityReminderOffset: Number(e.target.value) })}
+            >
+              <MenuItem value="5">5 minutes before</MenuItem>
+              <MenuItem value="10">10 minutes before</MenuItem>
+              <MenuItem value="15">15 minutes before</MenuItem>
+              <MenuItem value="30">30 minutes before</MenuItem>
+              <MenuItem value="60">60 minutes before</MenuItem>
+            </Select>
+          </FormControl>
+
+          <Divider />
+
+          {/* Goal deadline reminder */}
+          <Stack spacing={2}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="body1" fontWeight={500}>Goal Deadline Reminder</Typography>
+                <Typography variant="caption" color="text.secondary">Be reminded before goal deadlines</Typography>
+              </Box>
+              <Switch
+                checked={settings.goalRemindersEnabled}
+                onChange={(e) => setSettings({ ...settings, goalRemindersEnabled: e.target.checked })}
+                color="primary"
+              />
+            </Box>
+            {settings.goalRemindersEnabled && (
+              <FormControl fullWidth size="small">
+                <InputLabel>Days Before Deadline</InputLabel>
+                <Select
+                  value={String(settings.goalReminderDaysBefore)}
+                  label="Days Before Deadline"
+                  onChange={(e) => setSettings({ ...settings, goalReminderDaysBefore: Number(e.target.value) })}
+                >
+                  <MenuItem value="1">1 day before</MenuItem>
+                  <MenuItem value="3">3 days before</MenuItem>
+                  <MenuItem value="7">7 days before</MenuItem>
+                </Select>
+              </FormControl>
+            )}
+          </Stack>
+
+          <Divider />
+
+          {/* Do Not Disturb */}
+          <Stack spacing={2}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="body1" fontWeight={500}>Do Not Disturb</Typography>
+                <Typography variant="caption" color="text.secondary">Mute reminders during set hours</Typography>
+              </Box>
+              <Switch
+                checked={settings.dndEnabled}
+                onChange={(e) => setSettings({ ...settings, dndEnabled: e.target.checked })}
+                color="primary"
+              />
+            </Box>
+            {settings.dndEnabled && (
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <TextField
+                  label="From"
+                  type="time"
+                  value={settings.dndFrom}
+                  onChange={(e) => setSettings({ ...settings, dndFrom: e.target.value })}
+                  InputLabelProps={{ shrink: true }}
+                  size="small"
+                  fullWidth
+                />
+                <TextField
+                  label="To"
+                  type="time"
+                  value={settings.dndTo}
+                  onChange={(e) => setSettings({ ...settings, dndTo: e.target.value })}
+                  InputLabelProps={{ shrink: true }}
+                  size="small"
+                  fullWidth
+                />
+              </Box>
+            )}
+          </Stack>
+
+          <Divider />
+
+          {/* Snooze duration */}
+          <FormControl fullWidth size="small">
+            <InputLabel>Snooze Duration</InputLabel>
+            <Select
+              value={String(settings.snoozeDuration)}
+              label="Snooze Duration"
+              onChange={(e) => setSettings({ ...settings, snoozeDuration: Number(e.target.value) })}
+            >
+              <MenuItem value="5">5 minutes</MenuItem>
+              <MenuItem value="10">10 minutes</MenuItem>
+              <MenuItem value="15">15 minutes</MenuItem>
+              <MenuItem value="30">30 minutes</MenuItem>
+            </Select>
+          </FormControl>
         </CardContent>
       </Card>
 

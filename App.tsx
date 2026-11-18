@@ -42,7 +42,13 @@ export default function App() {
     activityRemindersEnabled: true,
     activityReminderOffset: 15,
     reflectionReminderEnabled: true,
-    reflectionTime: '20:00'
+    reflectionTime: '20:00',
+    goalRemindersEnabled: true,
+    goalReminderDaysBefore: 3,
+    dndEnabled: false,
+    dndFrom: '22:00',
+    dndTo: '07:00',
+    snoozeDuration: 10,
   });
   const [isQuickAddTaskModalOpen, setQuickAddTaskModalOpen] = useState(false);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -87,10 +93,10 @@ export default function App() {
     }
   }, [tasks, goals, user]);
 
-  // Sync tasks and settings with reminderService
+  // Sync tasks, goals and settings with reminderService
   React.useEffect(() => {
-    reminderService.init(tasks, settings);
-  }, [tasks, settings]);
+    reminderService.init(tasks, goals, settings);
+  }, [tasks, goals, settings]);
 
   const handleAddTask = useCallback((newTaskData: Omit<Task, 'id' | 'status'>) => {
     const newTask: Task = {
@@ -172,6 +178,19 @@ export default function App() {
       })
     );
   }, [setTasks]);
+
+  // Listen for SW reminder action messages
+  React.useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    const handler = (event: MessageEvent) => {
+      const { type, taskId, reminderId, snoozeMs } = event.data || {};
+      if (type === 'PLAY_SOUND') reminderService.playSound(settings.sound);
+      if (type === 'MARK_DONE' && taskId) toggleTaskCompletion(taskId);
+      if (type === 'SNOOZE_REMINDER' && reminderId) reminderService.snoozeReminder(reminderId, snoozeMs || (settings.snoozeDuration * 60000) || 600000);
+    };
+    navigator.serviceWorker.addEventListener('message', handler);
+    return () => navigator.serviceWorker.removeEventListener('message', handler);
+  }, [settings.sound, settings.snoozeDuration, toggleTaskCompletion]);
   
   const deleteTask = useCallback((taskId: string) => {
     setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));

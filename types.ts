@@ -12,6 +12,7 @@ export interface Task {
   endTime?: string; // HH:mm (End Time)
   status: TaskStatus;
   reminderTime?: string; // HH:mm
+  reminderOffsetMinutes?: number;
   priority?: TaskPriority;
 }
 
@@ -48,4 +49,10 @@ export interface AppSettings {
   activityReminderOffset: number; // in minutes
   reflectionReminderEnabled: boolean;
   reflectionTime: string; // "HH:mm"
+  goalRemindersEnabled: boolean;
+  goalReminderDaysBefore: number; // 1 | 3 | 7
+  dndEnabled: boolean;
+  dndFrom: string;  // "HH:mm"
+  dndTo: string;    // "HH:mm"
+  snoozeDuration: number; // minutes
 }
