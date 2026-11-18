@@ -29,15 +29,17 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onMenuClick,
     <AppBar 
       position="sticky" 
       elevation={0}
+      color="default"
       sx={{ 
         top: 0,
         boxShadow: 'none', 
-        borderBottom: 'none', 
+        borderBottom: 1, 
+        borderColor: 'divider',
+        backgroundColor: 'background.paper',
+        color: 'text.primary',
         backgroundImage: 'none',
         zIndex: 1000,
         borderRadius: 0,
-        border: 'none',
-        color: 'text.primary',
       }}
     >
       <Toolbar sx={{ gap: 1, px: { xs: 1, sm: 2, md: 3 } }}>
@@ -83,6 +85,7 @@ const Header: React.FC<HeaderProps> = ({ activePage, setActivePage, onMenuClick,
             fontFamily: "'DM Sans', sans-serif",
             fontWeight: 700,
             letterSpacing: '-0.2px',
+            color: 'text.primary',
           }}
         >
           {titleOverride || (activePage === Page.Home ? (

@@ -64,12 +64,45 @@ export default function App() {
 
   const currentUser = user || (isGuest ? { id: 'guest', email: 'guest@clearday.local' } as any : null);
 
-  const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const actualThemeMode = settings.theme === 'system' ? (prefersDarkMode ? 'dark' : 'light') : settings.theme;
+  // Determine if it is currently daytime (06:00 to 18:59) or nighttime (19:00 to 05:59)
+  const getDayNightTheme = useCallback((): 'light' | 'dark' => {
+    const hour = new Date().getHours();
+    return (hour >= 6 && hour < 19) ? 'light' : 'dark';
+  }, []);
+
+  const [systemMode, setSystemMode] = useState<'light' | 'dark'>(() => getDayNightTheme());
+
+  React.useEffect(() => {
+    const updateTheme = () => {
+      setSystemMode(getDayNightTheme());
+    };
+
+    updateTheme();
+    // Update every minute to catch sunrise/sunset transitions
+    const interval = setInterval(updateTheme, 60_000);
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        updateTheme();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [getDayNightTheme]);
+
+  const actualThemeMode: 'light' | 'dark' = settings.theme === 'system' ? systemMode : settings.theme;
   const currentTheme = React.useMemo(() => getTheme(actualThemeMode), [actualThemeMode]);
 
   React.useEffect(() => {
     document.body.className = `theme-${actualThemeMode}`;
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', actualThemeMode === 'dark' ? '#000000' : '#FDFBF7');
+    }
   }, [actualThemeMode]);
 
   // Sync data from Cloud to Local on Login
@@ -249,7 +282,7 @@ export default function App() {
                   setHeaderBackAction={setHeaderBackAction}
                 />;
       case Page.Settings:
-        return <SettingsScreen settings={settings} setSettings={setSettings} />;
+        return <SettingsScreen settings={settings} setSettings={setSettings} actualThemeMode={actualThemeMode} />;
       case Page.Progress:
         return <ProgressScreen tasks={sortedTasks} goals={goals} deleteTask={deleteTask} />;
       case Page.Admin:

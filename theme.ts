@@ -29,11 +29,11 @@ const darkTokens = {
   },
   text: {
     primary: '#F0F2F5',
-    secondary: '#8899A6',
-    disabled: '#4A5568',
+    secondary: '#9CA3AF',
+    disabled: '#64748B',
   },
-  outline: '#1F242A',
-  outlineVariant: '#151A1E',
+  outline: '#262D35',
+  outlineVariant: '#1E2328',
 };
 
 const lightTokens = {
@@ -64,12 +64,12 @@ const lightTokens = {
     warning: '#A6732B',
   },
   text: {
-    primary: '#1A1C1E',
-    secondary: '#555A60',
-    disabled: '#8F959D',
+    primary: '#111827',
+    secondary: '#4B5563',
+    disabled: '#6B7280',
   },
   outline: '#D1CDC2',
-  outlineVariant: '#E1DED5',
+  outlineVariant: '#E5E2D9',
 };
 
 const motion = {
@@ -139,14 +139,23 @@ export const getTheme = (mode: 'light' | 'dark') => {
         },
       },
       MuiAppBar: {
+        defaultProps: {
+          color: 'transparent',
+          elevation: 0,
+        },
         styleOverrides: {
           root: {
-            backgroundColor: mode === 'dark' ? 'rgba(0, 0, 0, 0.85)' : 'rgba(253, 251, 247, 0.85)',
+            backgroundColor: mode === 'dark' ? 'rgba(10, 10, 10, 0.95)' : 'rgba(253, 251, 247, 0.95)',
+            color: tokens.text.primary,
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
             boxShadow: 'none',
             borderBottom: `1px solid ${tokens.outlineVariant}`,
-            transition: `background-color 400ms ${motion.standard}, border-color 400ms ${motion.standard}`,
+            transition: `background-color 400ms ${motion.standard}, border-color 400ms ${motion.standard}, color 400ms ${motion.standard}`,
+          },
+          colorPrimary: {
+            backgroundColor: mode === 'dark' ? 'rgba(10, 10, 10, 0.95)' : 'rgba(253, 251, 247, 0.95)',
+            color: tokens.text.primary,
           },
         },
       },
@@ -355,9 +364,35 @@ export const getTheme = (mode: 'light' | 'dark') => {
       },
       MuiAlert: {
         styleOverrides: {
-          root: { borderRadius: 12 },
-          standardInfo: { backgroundColor: tokens.primary.container, color: tokens.primary.onContainer },
-          standardError: { backgroundColor: mode === 'dark' ? 'rgba(224, 108, 108, 0.15)' : 'rgba(186, 67, 67, 0.15)', color: tokens.semantic.error },
+          root: { 
+            borderRadius: 12,
+            fontWeight: 500,
+          },
+          standardInfo: { 
+            backgroundColor: mode === 'dark' ? 'rgba(91, 164, 207, 0.15)' : tokens.primary.container, 
+            color: mode === 'dark' ? '#BAE6FD' : tokens.primary.onContainer,
+            border: `1px solid ${mode === 'dark' ? 'rgba(91, 164, 207, 0.3)' : 'rgba(42, 114, 154, 0.25)'}`,
+            '& .MuiAlert-icon': { color: mode === 'dark' ? '#7DD3FC' : tokens.primary.main }
+          },
+          standardError: { 
+            backgroundColor: mode === 'dark' ? 'rgba(224, 108, 108, 0.15)' : 'rgba(186, 67, 67, 0.12)', 
+            color: mode === 'dark' ? '#FCA5A5' : '#991B1B',
+            border: `1px solid ${mode === 'dark' ? 'rgba(224, 108, 108, 0.3)' : 'rgba(186, 67, 67, 0.25)'}`,
+            '& .MuiAlert-icon': { color: mode === 'dark' ? '#F87171' : tokens.semantic.error }
+          },
+          standardWarning: {
+            backgroundColor: mode === 'dark' ? 'rgba(212, 167, 106, 0.16)' : 'rgba(217, 119, 6, 0.12)',
+            color: mode === 'dark' ? '#FDE68A' : '#92400E',
+            border: `1px solid ${mode === 'dark' ? 'rgba(212, 167, 106, 0.35)' : 'rgba(217, 119, 6, 0.3)'}`,
+            '& .MuiAlert-icon': { color: mode === 'dark' ? '#FBBF24' : '#D97706' },
+            '& a, & .MuiTypography-root': { color: 'inherit' }
+          },
+          standardSuccess: {
+            backgroundColor: mode === 'dark' ? 'rgba(92, 184, 130, 0.15)' : 'rgba(61, 140, 94, 0.12)',
+            color: mode === 'dark' ? '#86EFAC' : '#166534',
+            border: `1px solid ${mode === 'dark' ? 'rgba(92, 184, 130, 0.3)' : 'rgba(61, 140, 94, 0.25)'}`,
+            '& .MuiAlert-icon': { color: mode === 'dark' ? '#4ADE80' : tokens.semantic.success }
+          },
         },
       },
       MuiDivider: {

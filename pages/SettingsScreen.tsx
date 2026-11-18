@@ -6,9 +6,10 @@ import { PlayArrow as PlayArrowIcon, Vibration as VibrationIcon, InfoOutlined as
 interface SettingsScreenProps {
   settings: AppSettings;
   setSettings: (settings: AppSettings) => void;
+  actualThemeMode?: 'light' | 'dark';
 }
 
-const SettingsScreen: React.FC<SettingsScreenProps> = ({ settings, setSettings }) => {
+const SettingsScreen: React.FC<SettingsScreenProps> = ({ settings, setSettings, actualThemeMode = 'dark' }) => {
   const [notificationPermission, setNotificationPermission] = useState<string>('default');
   const [isStandalone, setIsStandalone] = useState(false);
 
@@ -113,6 +114,18 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ settings, setSettings }
                 <SystemModeIcon sx={{ fontSize: '1.2rem', mr: 1 }} /> System
               </ToggleButton>
             </ToggleButtonGroup>
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1.5, display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}>
+              {settings.theme === 'system' ? (
+                <>
+                  <Box component="span" sx={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main' }} />
+                  <span>
+                    Auto-switching active: <strong>{actualThemeMode === 'dark' ? '🌙 Nighttime (Dark theme)' : '☀️ Daytime (Light theme)'}</strong> (Day: 6 AM – 7 PM, Night: 7 PM – 6 AM).
+                  </span>
+                </>
+              ) : (
+                `Manual override: using ${settings.theme} theme.`
+              )}
+            </Typography>
           </Box>
         </CardContent>
       </Card>
